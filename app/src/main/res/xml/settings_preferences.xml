@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+
+
+    <PreferenceCategory app:title="Privacy Settings" android:key="rootKey" app:iconSpaceReserved="false" >
+
+        <Preference
+            app:iconSpaceReserved="false"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="Notification" >
+
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetPackage="com.carpark"
+                android:targetClass="com.carpark.views.NotificationActivity"
+                />
+        </Preference>
+
+        <SwitchPreference
+            android:defaultValue="true"
+            app:iconSpaceReserved="false"
+            android:key="location_preference"
+            android:title="Location Tracking" />
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="Support" app:iconSpaceReserved="false">
+
+
+        <Preference
+            android:defaultValue="Default value"
+            app:iconSpaceReserved="false"
+            android:key="about_preferences"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            android:title="About">
+
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetPackage="com.carpark"
+                android:targetClass="com.carpark.views.AboutActivity"
+                />
+        </Preference>
+
+        <!-- Add Nested FAQ Fragment Here-->
+        <!-- Add  android:fragment="karanja.views.FAQ"-->
+
+        <Preference
+            android:defaultValue="Default value"
+            android:key="faq_preferences"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            app:iconSpaceReserved="false"
+            android:title="Frequently Asked Questions" />
+
+
+        <Preference
+            android:defaultValue="Default value"
+            android:key="support_preferences"
+            android:selectAllOnFocus="true"
+            android:singleLine="true"
+            app:iconSpaceReserved="false"
+            android:title="Support">
+
+            <intent
+                android:action="android.intent.action.VIEW"
+                android:targetPackage="com.carpark"
+                android:targetClass="com.carpark.views.SupportActivity"
+                />
+        </Preference>
+    </PreferenceCategory>
+</PreferenceScreen>

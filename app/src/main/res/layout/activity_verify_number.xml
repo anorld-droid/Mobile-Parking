@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/edittext_curves"
+    tools:context=".views.VerifyNumber">
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="253dp"
+        android:layout_height="36dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="70dp"
+        android:fontFamily="@font/nunito"
+        android:text="Enter your Phone Number"
+        android:textSize="16sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.108"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/imageButton2" />
+
+    <TextView
+        android:id="@+id/textView7"
+        android:layout_width="211dp"
+        android:layout_height="32dp"
+        android:layout_marginTop="13dp"
+        android:fontFamily="@font/nunito"
+        android:text="You'll receive a code to verify your phone number"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.175"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView4" />
+
+    <LinearLayout
+        android:id="@+id/linearLayout2"
+        android:layout_width="319dp"
+        android:layout_height="48dp"
+        android:layout_marginTop="15dp"
+        android:background="@drawable/edittext_curves"
+        android:orientation="horizontal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView7">
+
+        <com.hbb20.CountryCodePicker
+            android:id="@+id/verify_ccp"
+            android:layout_width="68dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:fontFamily="@font/nunito"
+            android:gravity="center"
+            app:ccp_arrowColor="@color/colorPrimary"
+            app:ccp_autoDetectCountry="true"
+            app:ccp_contentColor="#777777"
+            app:ccp_showArrow="false"
+            app:ccp_showFlag="false"
+            app:ccp_showNameCode="false"
+            app:ccp_textSize="15sp">
+
+        </com.hbb20.CountryCodePicker>
+
+        <EditText
+            android:id="@+id/verify_number"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_weight="4"
+            android:autofillHints="+234"
+            android:background="@drawable/edittext_line"
+            android:fontFamily="@font/nunito"
+            android:hint="Enter your phone number"
+            android:inputType="phone"
+            android:maxLength="12"
+            android:paddingLeft="8dp"
+            android:textAllCaps="false"
+            android:textColor="#777777"
+            android:textColorHint="#777777"
+            android:textSize="15sp" />
+
+    </LinearLayout>
+
+
+    <Button
+        android:id="@+id/next1"
+        android:layout_width="319dp"
+        android:layout_height="52dp"
+        android:layout_marginTop="60dp"
+        android:background="@drawable/cornered_rectangle"
+        android:fontFamily="@font/nunito_bold"
+        android:text="Next"
+        android:textColor="@color/color_white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/linearLayout2"
+        app:layout_constraintVertical_bias="0.142" />
+
+    <ImageButton
+        android:id="@+id/imageButton2"
+        android:layout_width="16dp"
+        android:layout_height="16dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="20dp"
+        android:background="#00EEEEEE"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.04"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.037"
+        app:srcCompat="?attr/actionModeCloseDrawable" />
+
+    <ProgressBar
+        android:id="@+id/progressBarVer"
+        style="?android:attr/progressBarStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/next1" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

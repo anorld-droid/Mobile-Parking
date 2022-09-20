@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "1005157341069",
+    "firebase_url": "https://parkingfinal-eae1f-default-rtdb.firebaseio.com",
+    "project_id": "parkingfinal-eae1f",
+    "storage_bucket": "parkingfinal-eae1f.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1005157341069:android:0fc870af9631d5252c0fc4",
+        "android_client_info": {
+          "package_name": "com.karanja"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1005157341069-jasn0m2f86gd94rosilbpmfio23osbg9.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAvRmBsShhXXjS_5UuTIqCv6VwtJYwJ9fA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1005157341069-jasn0m2f86gd94rosilbpmfio23osbg9.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

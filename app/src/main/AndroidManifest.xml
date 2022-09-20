@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.karanja">
+
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:name=".utils.Commons"
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher_background"
+        android:label="@string/app_name"
+        android:roundIcon="@drawable/ic_launcher_foreground"
+        android:supportsRtl="true"
+        android:theme="@style/AppTheme"
+        tools:ignore="GoogleAppIndexingWarning">
+        <activity
+            android:name=".views.BasicUtils"
+            android:exported="true" />
+        <activity
+            android:name=".Register.RegisterActivity"
+            android:exported="true" />
+        <activity
+            android:name=".Register.LoginActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity
+            android:name=".views.SupportActivity"
+            android:label="Support"
+            android:parentActivityName=".views.SettingsActivity" />
+        <activity
+            android:name=".views.AboutActivity"
+            android:label="About"
+            android:parentActivityName=".views.SettingsActivity" />
+        <activity
+            android:name=".views.NotificationActivity"
+            android:label="Notification"
+            android:parentActivityName=".views.SettingsActivity" />
+        <activity
+            android:name=".views.SettingsActivity"
+            android:label="Settings" />
+        <activity android:name=".views.PasswordActivity" />
+        <activity
+            android:name=".views.GetAllCarDetailsActivity"
+            tools:ignore="Instantiatable" />
+        <activity
+            android:name=".views.MyParkingSpace"
+            android:parentActivityName=".views.HomeActivity" />
+        <activity android:name=".IgnoreForApiTest.ApiTestActivity" />
+        <activity
+            android:name=".views.homefragments.SupportFragment"
+            tools:ignore="Instantiatable" />
+        <activity android:name=".views.Map" />
+        <activity
+            android:name=".views.MapsActivity"
+            android:parentActivityName=".views.HomeActivity" />
+        <!--
+             The API key for Google Maps-based APIs is defined as a string resource.
+             (See the file "res/values/google_maps_api.xml").
+             Note that the API key is linked to the encryption key used to sign the APK.
+             You need a different API key for each encryption key, including the release key that is used to
+             sign the APK for publishing.
+             You can define the keys for the debug and release targets in src/debug/ and src/release/.
+        -->
+        <activity android:name=".views.VehicleActivity" />
+        <activity android:name=".views.PaymentMethodActivity" />
+        <activity
+            android:name=".views.ConfirmationActivity"
+            android:parentActivityName=".views.ScheduleActivity" />
+        <activity
+            android:name=".views.EnterNameActivity"
+            android:parentActivityName=".views.EnterOTP"
+            android:theme="@style/Material" /> <!-- android:theme="@style/AppTheme.NoActionBar" /> -->
+        <activity
+            android:name=".views.GetStarted"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".views.OnboardingActivity"
+            android:theme="@style/AppTheme" />
+        <activity
+            android:name=".views.SplashActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".views.ParkLocation"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".views.AddCardActivity"
+            android:label="Add Card"
+            android:parentActivityName=".views.HomeActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".views.HomeActivity"
+            android:label="Home"
+            android:theme="@style/AppTheme.NoActionBar"></activity>
+        <activity
+            android:name=".views.TransactionActivity"
+            android:label="Transaction" />
+        <activity
+            android:name=".views.InvoiceActivity"
+            android:parentActivityName=".views.ConfirmationActivity" />
+        <activity
+            android:name=".views.DetailsActivity"
+            android:parentActivityName=".views.HomeActivity" />
+        <activity
+            android:name=".views.EnterOTP"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".views.ScheduleActivity"
+            android:parentActivityName=".views.HomeActivity" />
+        <activity
+            android:name=".views.ProfileActivity"
+            android:label="Edit Profile"
+            android:parentActivityName=".views.SettingsActivity" />
+        <activity
+            android:name=".views.VerifyNumber"
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity
+            android:name=".views.CarDetailsActiviy"
+            android:parentActivityName=".views.ScheduleActivity" />
+        <activity android:name=".views.BaseActivity" />
+        <activity android:name=".views.BarterActivity" />
+        <activity android:name=".IgnoreForApiTest.StartActivity">
+
+            <!--
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+            -->
+        </activity>
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyD1XwtM5P9rGEwSyvDY4f2W5VqhS85Xdjo" /> <!-- Facebook starts don't touch please -->
+        <meta-data
+            android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id" />
+
+        <activity
+            android:name="com.facebook.FacebookActivity"
+            android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:label="@string/app_name" />
+        <activity
+            android:name="com.facebook.CustomTabActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data android:scheme="@string/fb_login_protocol_scheme" />
+            </intent-filter>
+        </activity> <!-- Facebook ends don't touch please -->
+        <meta-data
+            android:name="co.paystack.android.PublicKey"
+            android:value="pk_test_a6776f501f9fc824598fe84b547c0b742dd357f0" />
+
+        <uses-library android:name="com.google.android.maps" />
+    </application>
+
+</manifest>
