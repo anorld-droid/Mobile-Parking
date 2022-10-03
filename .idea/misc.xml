@@ -4,9 +4,16 @@
     <option name="filePathToZoomLevelMap">
       <map>
         <entry key="app/src/main/res/layout/activity_confirmation.xml" value="0.18072916666666666" />
+        <entry key="app/src/main/res/layout/activity_home.xml" value="0.35520833333333335" />
         <entry key="app/src/main/res/layout/activity_invoice.xml" value="0.18072916666666666" />
+        <entry key="app/src/main/res/layout/activity_my_parking_space.xml" value="0.35520833333333335" />
         <entry key="app/src/main/res/layout/activity_schedule.xml" value="0.18072916666666666" />
+        <entry key="app/src/main/res/layout/change_date_dialog.xml" value="0.22" />
+        <entry key="app/src/main/res/layout/current_space.xml" value="0.35520833333333335" />
+        <entry key="app/src/main/res/layout/dialog_my_vehicle.xml" value="0.35520833333333335" />
         <entry key="app/src/main/res/layout/fragment_my_vehicle.xml" value="0.18072916666666666" />
+        <entry key="app/src/main/res/layout/fragment_parking_history.xml" value="0.18072916666666666" />
+        <entry key="app/src/main/res/layout/parking_history_item.xml" value="0.18072916666666666" />
       </map>
     </option>
   </component>
@@ -15,5 +22,12 @@
   </component>
   <component name="ProjectType">
     <option name="id" value="Android" />
+  </component>
+  <component name="VisualizationToolProject">
+    <option name="state">
+      <ProjectState>
+        <option name="scale" value="0.22" />
+      </ProjectState>
+    </option>
   </component>
 </project>

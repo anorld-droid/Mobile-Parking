@@ -31,7 +31,7 @@
     <string name="time_t">10:00 AM</string>
     <string name="vehicle">Vehicle</string>
     <string name="lexus_rx330">   </string>
-    <string name="lng122bw">LNG122BW</string>
+    <string name="lng122bw"> </string>
     <string name="promo_code"><font size="16">Promo Code</font></string>
     <string name="enter_the_promo_code_and_it_will_be_applied_to_your_next_parking_reservation">Enter the promo code and it will be applied\n to your next parking reservation</string>
     <string name="apply">Apply</string>
@@ -67,7 +67,7 @@
     <string name="message">Message</string>
     <string name="send">Send</string>
     <string name="tap_here_to_select">Tap here to select</string>
-    <string name="hint">+254757913481</string>
+    <string name="hint">0757913481</string>
 
 
 </resources>

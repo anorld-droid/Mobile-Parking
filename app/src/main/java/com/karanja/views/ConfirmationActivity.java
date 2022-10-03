@@ -1,5 +1,6 @@
 package com.karanja.views;
 
+import static com.facebook.FacebookSdk.getApplicationContext;
 import static com.karanja.utils.Constants.BUSINESS_SHORT_CODE;
 import static com.karanja.utils.Constants.CALLBACKURL;
 import static com.karanja.utils.Constants.PARTYB;
@@ -47,6 +48,8 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 import okhttp3.MediaType;
 import okhttp3.OkHttpClient;
@@ -57,6 +60,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ConfirmationActivity extends BaseActivity {
+    private String TAG = "PARKING_SLOT";
     private TextView park, address, date_in, date_out, time_in, time_out, vehicle_name, vehicle_number, payable_amount;
     private EditText phoneNumber;
     private final String PREFERENCE_FILE_KEY = "location_pref";
@@ -68,6 +72,8 @@ public class ConfirmationActivity extends BaseActivity {
     private ProgressDialog mProgressDialog;
     private long payment;
     private FirebaseFirestore mDatabase;
+    String checkIn;
+    String checkOut;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,21 +97,18 @@ public class ConfirmationActivity extends BaseActivity {
         phoneNumber = findViewById(R.id.phone_number);
         confirm_button = findViewById(R.id.confirm_button);
         progressBar = findViewById(R.id.progressBar4);
-
-        date_in.setText(SharePreference.getINSTANCE(getApplicationContext()).getINFormattedDay());
-        date_out.setText(SharePreference.getINSTANCE(getApplicationContext()).getOutFormattedDay());
+        checkIn = SharePreference.getINSTANCE(getApplicationContext()).getINFormattedDay();
+        date_in.setText(checkIn);
+        checkOut = SharePreference.getINSTANCE(getApplicationContext()).getOutFormattedDay();
+        date_out.setText(checkOut);
         time_in.setText(SharePreference.getINSTANCE(getApplicationContext()).getINFormattedTime());
         time_out.setText(SharePreference.getINSTANCE(getApplicationContext()).getOutFormattedTime());
         vehicle_name.setText(SharePreference.getINSTANCE(getApplicationContext()).getMainVehicleName());
         vehicle_number.setText(SharePreference.getINSTANCE(getApplicationContext()).getMainVehicleNumber());
         try {
-            SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss");
-            Date dateIn = formatter.parse(SharePreference.getINSTANCE(getApplicationContext()).getCheckIn());
-            Date dateOut = formatter.parse(SharePreference.getINSTANCE(getApplicationContext()).getCheckOut());
-
-            long time_difference = dateOut.getTime() - dateIn.getTime();
-            long hours_difference = (time_difference / (1000 * 60 * 60)) % 24;
-            payment = hours_difference * 50;
+            String[] dur = SharePreference.getINSTANCE(getApplicationContext()).getDuration().split(" ");
+            long time_difference = Integer.parseInt(dur[0]) + (Integer.parseInt(dur[2]) / 60);
+            payment = time_difference * 50;
             payable_amount.setText(String.valueOf("Ksh. " + payment));
         } catch (Exception e) {
             Log.d("TAG", "" + e);
@@ -140,7 +143,7 @@ public class ConfirmationActivity extends BaseActivity {
 
                 if (response.isSuccessful()) {
                     mApiClient.setAuthToken(response.body().accessToken);
-                    showToast("Access " + response.code());
+//                    showToast("Access " + response.code());
 
                 }
             }
@@ -211,6 +214,8 @@ public class ConfirmationActivity extends BaseActivity {
         SharePreference.getINSTANCE(this).setDuration("-----");
         SharePreference.getINSTANCE(this).setINFormattedDate("-----");
         SharePreference.getINSTANCE(this).setOutFormattedDate("-----");
+        checkIn += ", " +SharePreference.getINSTANCE(getApplicationContext()).getINFormattedTime();
+        checkOut += ", " +SharePreference.getINSTANCE(getApplicationContext()).getOutFormattedTime();
         dialog.setCanceledOnTouchOutside(false);
         invoice.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -238,7 +243,34 @@ public class ConfirmationActivity extends BaseActivity {
                                 });
                     }
                 });
-
+                String userID = SharePreference.getINSTANCE(getApplicationContext()).getUser();
+                UserPackedSpace userPackedSpace = new UserPackedSpace();
+                Random rand = new Random();
+                String bookingId = String.format("%06d", rand.nextInt(999999));
+                SharePreference.getINSTANCE(getApplicationContext()).setLoggedUserId(bookingId);
+                userPackedSpace.setCarParkBookingId(bookingId);
+                int index = rand.nextInt(7);
+                String[] locations = {"Floor 3 Section D Lane 3","Ikeja City Mall Section 1 Lane 20", "National Theatre Section 11 Lane 1", "University of Lagos Section 20 Lane 3", "Section 5 Lane 5", "Silverbird Galleria Section 3 Lane 12", "Palms Shopping MallSection 4 Lane 1"};
+                userPackedSpace.setAddress(locations[index]);
+                userPackedSpace.setCheckIn(checkIn);
+                userPackedSpace.setCheckOut(checkOut);
+                userPackedSpace.setVehicleNo(SharePreference.getINSTANCE(getApplicationContext()).getMainVehicleNumber());
+                userPackedSpace.setOwner(SharePreference.getINSTANCE(getApplicationContext()).getMainVehicleName());
+                userPackedSpace.setAmount(String.valueOf(payment));
+                mDatabase.collection("parkingspaces").document(userID).collection("current").document("space")
+                        .set(userPackedSpace)
+                        .addOnSuccessListener(new OnSuccessListener<Void>() {
+                            @Override
+                            public void onSuccess(Void aVoid) {
+                                Log.d(TAG, "DocumentSnapshot successfully written!");
+                            }
+                        })
+                        .addOnFailureListener(new OnFailureListener() {
+                            @Override
+                            public void onFailure(@NonNull Exception e) {
+                                Log.w(TAG, "Error writing document", e);
+                            }
+                        });;
 
                 Intent intent = new Intent(ConfirmationActivity.this, InvoiceActivity.class);
                 startActivity(intent);
@@ -278,6 +310,7 @@ public class ConfirmationActivity extends BaseActivity {
                 try {
                     if (response.isSuccessful()) {
                         showAlert();
+                        SharePreference.getINSTANCE(getApplicationContext()).setPhoneNumber(phone_number);
                     } else {
                         Toast.makeText(getApplicationContext(), response.message(), Toast.LENGTH_SHORT).show();
                         Log.d("TAGElse", response.toString());

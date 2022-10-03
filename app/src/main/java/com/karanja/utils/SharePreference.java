@@ -21,6 +21,8 @@ public class SharePreference {
     private static final String CHECK_IN="com.carpark_CHECK_IN";
     private static final String CHECK_OUT="com.carpark_CHECK_OUT";
     private static final String DURATION="com.carpark_DURATION";
+    private static final String USER="com.user";
+    private static  final String PHONE_NUMBER="com.phone_number";
 
 
 
@@ -47,12 +49,12 @@ public class SharePreference {
 
     }
 
-    public void setLoggedUserId(Long id){
-        sharedPreferences.edit().putLong(ID_KEY,id).apply();
+    public void setLoggedUserId(String id){
+        sharedPreferences.edit().putString(ID_KEY,id).apply();
     }
 
-    public Long getLoggedUserId(){
-        return sharedPreferences.getLong(ID_KEY,-1);
+    public String getLoggedUserId(){
+        return sharedPreferences.getString(ID_KEY,"000000");
     }
 
     public void setAccesstoken(String accesstoken){
@@ -147,6 +149,12 @@ public class SharePreference {
     public String getCheckOut(){
         return sharedPreferences.getString(CHECK_OUT, "-----");
     }
+    public void setUser(String mUser) {
+        sharedPreferences.edit().putString(USER,mUser).apply();
+    }
+    public String getUser(){
+        return sharedPreferences.getString(USER, "-----");
+    }
     public void setCheckIn(String mCheckOut) {
         sharedPreferences.edit().putString(CHECK_IN,mCheckOut).apply();
     }
@@ -156,8 +164,16 @@ public class SharePreference {
     public void setDuration(String duration) {
         sharedPreferences.edit().putString(DURATION,duration).apply();
     }
+
     public String getDuration(){
         return sharedPreferences.getString(DURATION, "-----");
+    }
+    public void setPhoneNumber(String phoneNumber) {
+        sharedPreferences.edit().putString(PHONE_NUMBER,phoneNumber).apply();
+    }
+
+    public String getPhoneNumber(){
+        return sharedPreferences.getString(PHONE_NUMBER, "-----");
     }
 
 }

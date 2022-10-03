@@ -23,6 +23,7 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.karanja.Model.Park.ParkingSpace;
 import com.karanja.R;
+import com.karanja.utils.SharePreference;
 import com.karanja.views.HomeActivity;
 
 
@@ -34,7 +35,7 @@ public class LoginActivity extends AppCompatActivity {
     private Button login;
     Switch active;
     private TextView registerNowBtn;
-    DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+    DatabaseReference databaseReference;
 
 
     @Override
@@ -48,7 +49,7 @@ public class LoginActivity extends AppCompatActivity {
         // active=findViewById(R.id.active);
         //TextView btn = findViewById(R.id.registerNowBtn);
         registerNowBtn=findViewById(R.id.registerNowBtn);
-          DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference();
+        databaseReference = FirebaseDatabase.getInstance().getReference();
 //        FirebaseFirestore db = FirebaseFirestore.getInstance();
 //        ParkingSpace parkingSpace = new ParkingSpace();
 //        parkingSpace.setName("Naivas");
@@ -90,7 +91,7 @@ public class LoginActivity extends AppCompatActivity {
                     public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                         //check idNo if it exist
                         if (dataSnapshot.hasChild(usernameTxt)){
-
+                            SharePreference.getINSTANCE(getApplicationContext()).setUser(usernameTxt);
                             final String getpassword =dataSnapshot.child(usernameTxt).child("password").getValue(String.class);
                             if (getpassword.equals(passwordTxt)){
                                 Toast.makeText(LoginActivity.this, "login success", Toast.LENGTH_SHORT).show();

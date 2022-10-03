@@ -39,7 +39,7 @@ public class UserPackedSpace {
     private String updatedAt;
     @SerializedName("car_park_booking_id")
     @Expose
-    private int carParkBookingId;
+    private String carParkBookingId;
     @SerializedName("history_count")
     @Expose
     private int historyCount;
@@ -142,11 +142,11 @@ public class UserPackedSpace {
         this.updatedAt = updatedAt;
     }
 
-    public int getCarParkBookingId() {
+    public String getCarParkBookingId() {
         return carParkBookingId;
     }
 
-    public void setCarParkBookingId(int carParkBookingId) {
+    public void setCarParkBookingId(String carParkBookingId) {
         this.carParkBookingId = carParkBookingId;
     }
 

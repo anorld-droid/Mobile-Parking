@@ -19,6 +19,8 @@ import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
 
+import java.util.Random;
+
 
 public class InvoiceActivity extends AppCompatActivity{
 
@@ -26,7 +28,7 @@ public class InvoiceActivity extends AppCompatActivity{
     private Object BarcodeMatrix;
     private String directionFrom;
     private String directionTo;
-    private TextView park, address, date_in, date_out, time_in, time_out, vehicle_name, vehicle_number;
+    private TextView park, address, date_in, date_out, time_in, time_out, vehicle_name, vehicle_number, booking_id;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,6 +49,8 @@ public class InvoiceActivity extends AppCompatActivity{
         time_out = findViewById(R.id.to_time);
         vehicle_name = findViewById(R.id.vehicle_name);
         vehicle_number = findViewById(R.id.vehicle_number);
+        booking_id = findViewById(R.id.booking_id);
+
 
         date_in.setText(SharePreference.getINSTANCE(getApplicationContext()).getINFormattedDay());
         date_out.setText(SharePreference.getINSTANCE(getApplicationContext()).getOutFormattedDay());
@@ -54,6 +58,7 @@ public class InvoiceActivity extends AppCompatActivity{
         time_out.setText(SharePreference.getINSTANCE(getApplicationContext()).getOutFormattedTime());
         vehicle_name.setText(SharePreference.getINSTANCE(getApplicationContext()).getMainVehicleName());
         vehicle_number.setText(SharePreference.getINSTANCE(getApplicationContext()).getMainVehicleNumber());
+        booking_id.setText(SharePreference.getINSTANCE(getApplicationContext()).getLoggedUserId());
         showQrCode();
 
         directionFrom = "20.344,34.34";

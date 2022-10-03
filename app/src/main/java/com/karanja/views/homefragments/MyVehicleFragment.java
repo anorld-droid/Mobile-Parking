@@ -81,7 +81,8 @@ public class MyVehicleFragment extends Fragment {
     }
 
     private void getVehicles() {
-        Task<QuerySnapshot> collectionRef = db.collection("vehicles").document("userId").collection("myvehicles").get();
+        String userID = SharePreference.getINSTANCE(getApplicationContext()).getUser();
+        Task<QuerySnapshot> collectionRef = db.collection("vehicles").document(userID).collection("myvehicles").get();
         collectionRef.addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {

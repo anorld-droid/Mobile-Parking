@@ -1,5 +1,7 @@
 package com.karanja.views;
 
+import static com.facebook.FacebookSdk.getApplicationContext;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -203,12 +205,12 @@ public class ScheduleActivity extends AppCompatActivity {
     }
 
     public String getFormattedTime(Calendar date) {
-        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm");
+        SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
         return formatter.format(date.getTime());
     }
 
     public String getFormattedDate(Calendar date) {
-        SimpleDateFormat formatter = new SimpleDateFormat("EEE, dd MMM, HH:mm");
+        SimpleDateFormat formatter = new SimpleDateFormat("EEE, dd MMM, HH:mm:ss");
         return formatter.format(date.getTime());
     }
 
@@ -240,8 +242,8 @@ public class ScheduleActivity extends AppCompatActivity {
         recyclerView.setLayoutManager(layoutManager);
         myVehicleAdapter = new BookingVehicleAdapter(getApplicationContext(), vehicleList);
         recyclerView.setAdapter(myVehicleAdapter);
-
-        Task<QuerySnapshot> collectionRef = db.collection("vehicles").document("userId").collection("myvehicles").get();
+        String userID = SharePreference.getINSTANCE(getApplicationContext()).getUser();
+        Task<QuerySnapshot> collectionRef = db.collection("vehicles").document(userID).collection("myvehicles").get();
         collectionRef.addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
             public void onComplete(@NonNull Task<QuerySnapshot> task) {

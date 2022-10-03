@@ -100,7 +100,6 @@
                     android:drawableStart="@drawable/ic_car_card"
                     android:drawablePadding="10dp"
                     android:fontFamily="@font/nunito"
-                    android:text="NGN200"
                     android:textAppearance="@style/TextAppearance.AppCompat.Medium"
                     android:textColor="#777"
                     android:textSize="14sp" />

@@ -17,6 +17,7 @@ import androidx.annotation.NonNull;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.karanja.Api.ParkingApi;
@@ -40,13 +41,15 @@ public class CarDetailsActiviy extends BaseActivity {
     TextView carDetails;
     EditText plateNumber, carModel;
     Switch primaryRide;
-    private String plateNum,makeModel;
+    private String plateNum, makeModel;
     private boolean main_ride = true;
     private ProgressBar progressBar;
-    private String  plate = "new", make;
+    private String plate = "new", make;
     private int vehicle_id;
     private String token;
     private FirebaseFirestore mDatabase;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,14 +57,13 @@ public class CarDetailsActiviy extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_car_details);
         token = getSharePref().getAccessToken();
-       mDatabase  = FirebaseFirestore.getInstance();
-
+        mDatabase = FirebaseFirestore.getInstance();
 
         viewsInit();
 
         // To Edit or Delete Vehicle
-        if(plate!=null){
-            getCarDetails(vehicle_id,plate,make);
+        if (plate != null) {
+            getCarDetails(vehicle_id, plate, make);
             saveCarDetails.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
@@ -74,7 +76,7 @@ public class CarDetailsActiviy extends BaseActivity {
             });
 
             // To Add new Vehicle
-        }else{
+        } else {
             saveCarDetails.setText("Save");
             getSupportActionBar().setTitle("Add New Vehicle");
             saveCarDetails.setOnClickListener(new View.OnClickListener() {
@@ -114,7 +116,7 @@ public class CarDetailsActiviy extends BaseActivity {
     private void getCarDetails(final int vehicle_id, final String plate, final String make) {
         plateNumber.setText(plate);
         carModel.setText(make);
-        if(plate.equals(SharePreference.getINSTANCE(this).getMainVehicleNumber())){
+        if (plate.equals(SharePreference.getINSTANCE(this).getMainVehicleNumber())) {
             primaryRide.setChecked(true);
         }
         saveCarDetails.setText("Update");
@@ -127,15 +129,15 @@ public class CarDetailsActiviy extends BaseActivity {
             public void onResponse(Call<BaseDataResponse<Vehicle>> call, Response<BaseDataResponse<Vehicle>> response) {
                 // Vehicle will be updated In the API, Nothing to do with the response gotten
                 showToast("Vehicle Updated");
-                if(primaryRide.isChecked()){
+                if (primaryRide.isChecked()) {
                     SharePreference.getINSTANCE(getApplicationContext()).setMainVehicleId(vehicleId);
                     SharePreference.getINSTANCE(getApplicationContext()).setMainVehicleName(make);
                     SharePreference.getINSTANCE(getApplicationContext()).setMainVehicleNumber(plate);
                 }
 
                 progressBar.setVisibility(View.INVISIBLE);
-                Intent i = new Intent(getApplicationContext(),HomeActivity.class);
-                i.putExtra("name","Value");
+                Intent i = new Intent(getApplicationContext(), HomeActivity.class);
+                i.putExtra("name", "Value");
                 startActivity(i);
                 finish();
             }
@@ -151,10 +153,10 @@ public class CarDetailsActiviy extends BaseActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.delete_menu,menu);
-        if(plate!=null){
+        getMenuInflater().inflate(R.menu.delete_menu, menu);
+        if (plate != null) {
             menu.findItem(R.id.delete).setVisible(true);
-        }else{
+        } else {
             menu.findItem(R.id.delete).setVisible(false);
         }
         return true;
@@ -177,29 +179,29 @@ public class CarDetailsActiviy extends BaseActivity {
             @Override
             public void onResponse(Call<Void> call, Response<Void> response) {
                 progressBar.setVisibility(View.INVISIBLE);
-                showToast( "Vehicle Deleted");
-                Intent i = new Intent(getApplicationContext(),HomeActivity.class);
-                i.putExtra("name","Value");
+                showToast("Vehicle Deleted");
+                Intent i = new Intent(getApplicationContext(), HomeActivity.class);
+                i.putExtra("name", "Value");
                 startActivity(i);
                 finish();
             }
 
             @Override
             public void onFailure(Call<Void> call, Throwable t) {
-                showToast( "Failed to delete Vehicle");
+                showToast("Failed to delete Vehicle");
             }
         });
 
     }
 
     // initialising the views
-    public void viewsInit(){
+    public void viewsInit() {
         getSupportActionBar().setTitle("Add Vehicle");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         saveCarDetails = findViewById(R.id.save_car_details);
         primaryRide = findViewById(R.id.primary_ride);
         plateNumber = findViewById(R.id.car_plate_number);
-        carModel =  findViewById(R.id.car_model);
+        carModel = findViewById(R.id.car_model);
         progressBar = findViewById(R.id.progressBar2);
         progressBar.setVisibility(View.INVISIBLE);
         vehicle_id = getIntent().getIntExtra("Vehicle_Id", -1);
@@ -208,32 +210,32 @@ public class CarDetailsActiviy extends BaseActivity {
     }
 
     // checking if the input boxes were filled
-    public void checkInputBoxes(){
+    public void checkInputBoxes() {
         plateNum = plateNumber.getText().toString();
         makeModel = carModel.getText().toString();
         //checking the input boxes first
-        if (plateNum.isEmpty()){
+        if (plateNum.isEmpty()) {
             this.plateNumber.setError("Please fill this field");
-        }else if (makeModel.isEmpty()){
+        } else if (makeModel.isEmpty()) {
             this.carModel.setError("please fill this field");
-        }else{
+        } else {
             primaryRide.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                    if (isChecked){
+                    if (isChecked) {
                         main_ride = true;
-                    }else{
+                    } else {
                         main_ride = false;
                     }
                 }
             });
             progressBar.setVisibility(View.VISIBLE);
-            saveCar(plateNum,makeModel,main_ride);
+            saveCar(plateNum, makeModel, main_ride);
         }
 
     }
 
-    public void saveCar(final String plate_number, final String make_model, boolean main_ride){
+    public void saveCar(final String plate_number, final String make_model, boolean main_ride) {
         SimpleDateFormat formatter = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss");
         Date date = new Date();
         String created_at = formatter.format(date);
@@ -243,21 +245,22 @@ public class CarDetailsActiviy extends BaseActivity {
         vehicle.setId(rand.nextInt());
         vehicle.setPlateNumber(plate_number);
         vehicle.setMakeModel(make_model);
-        if (main_ride){
+        if (main_ride) {
             vehicle.setMainRide(1);
-        }else{
+        } else {
             vehicle.setMainRide(0);
         }
         vehicle.setUserId(rand.nextInt());
         vehicle.setCreatedAt(created_at);
         vehicle.setUpdatedAt(created_at);
-        mDatabase.collection("vehicles").document("userId").collection("myvehicles").add(vehicle)
+        String userID = SharePreference.getINSTANCE(getApplicationContext()).getUser();
+        mDatabase.collection("vehicles").document(userID).collection("myvehicles").add(vehicle)
                 .addOnSuccessListener(new OnSuccessListener<DocumentReference>() {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
                         Log.d("TAG", "DocumentSnapshot successfully written!");
                         progressBar.setVisibility(View.GONE);
-                        showToast( "Vehicle Added");
+                        showToast("Vehicle Added");
                         finish();
                     }
                 })
@@ -269,20 +272,20 @@ public class CarDetailsActiviy extends BaseActivity {
                 });
         token = SharePreference.getINSTANCE(getApplicationContext()).getAccessToken();
         ParkingApi parkingApi = RetrofitClient.getInstance().create(ParkingApi.class);
-        parkingApi.addNewVehicle(token,plate_number,make_model,main_ride).enqueue(new Callback<BaseDataResponse<Vehicle>>() {
+        parkingApi.addNewVehicle(token, plate_number, make_model, main_ride).enqueue(new Callback<BaseDataResponse<Vehicle>>() {
             @Override
             public void onResponse(Call<BaseDataResponse<Vehicle>> call, Response<BaseDataResponse<Vehicle>> response) {
-                if(response.isSuccessful()){
-                    if(primaryRide.isChecked()){
+                if (response.isSuccessful()) {
+                    if (primaryRide.isChecked()) {
                         SharePreference.getINSTANCE(getApplicationContext()).setMainVehicleName(make_model);
                         SharePreference.getINSTANCE(getApplicationContext()).setMainVehicleNumber(plate_number);
                     }
 
-                    Intent i = new Intent(getApplicationContext(),HomeActivity.class);
-                    i.putExtra("name","Value");
+                    Intent i = new Intent(getApplicationContext(), HomeActivity.class);
+                    i.putExtra("name", "Value");
                     startActivity(i);
                     finish();
-                }else{
+                } else {
 
                 }
             }
