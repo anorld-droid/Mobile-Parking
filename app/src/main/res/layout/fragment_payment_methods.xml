@@ -11,48 +11,15 @@
         tools:context=".views.homefragments.PaymentMethodsFragment">
         <!-- Card -->
 
-
-        <View
-            android:id="@+id/line_1_1"
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_marginTop="7dp"
-            android:layout_marginEnd="5dp"
-            android:alpha="0.17"
-            android:background="@drawable/line_1_1"
-            app:layout_constraintEnd_toEndOf="parent"
-         />
-
-
-
-
-
-
-
-        <View
-            android:id="@+id/line_1_2"
-            android:layout_width="0dp"
-            android:layout_height="1dp"
-            android:layout_marginEnd="5dp"
-            android:alpha="0.17"
-            android:background="@drawable/line_1_1"
-            app:layout_constraintEnd_toEndOf="parent"
-           />
-
-
-
-
-
         <View
             android:id="@+id/line_1_4"
             android:layout_width="0dp"
             android:layout_height="1dp"
-            android:layout_marginTop="16dp"
             android:layout_marginEnd="5dp"
             android:alpha="0.17"
             android:background="@drawable/line_1_1"
             app:layout_constraintEnd_toEndOf="parent"
-              />
+            app:layout_constraintTop_toTopOf="parent" />
 
         <ImageView
             android:id="@+id/imageView4"
@@ -67,9 +34,8 @@
 
         <TextView
             android:id="@+id/paystack"
-            android:layout_width="316dp"
-            android:layout_height="20dp"
-            android:layout_marginStart="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             android:fontFamily="@font/nunito_semibold"
             android:gravity="top"
@@ -77,8 +43,24 @@
             android:text="@string/paystack"
             android:textColor="#777777"
             android:textSize="16sp"
-            app:layout_constraintEnd_toEndOf="@+id/paystack_btn"
+            app:layout_constraintEnd_toStartOf="@+id/mpesa_paystack"
             app:layout_constraintStart_toEndOf="@+id/imageView4"
+            app:layout_constraintTop_toBottomOf="@+id/line_1_4" />
+
+        <TextView
+            android:id="@+id/mpesa_paystack"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:layout_marginEnd="156dp"
+            android:fontFamily="@font/nunito_semibold"
+            android:gravity="top"
+            android:lineHeight="22sp"
+            android:text="@string/paystack"
+            android:textColor="#777777"
+            android:textSize="16sp"
+            app:layout_constraintEnd_toStartOf="@+id/paystack_btn"
+            app:layout_constraintStart_toEndOf="@+id/paystack"
             app:layout_constraintTop_toBottomOf="@+id/line_1_4" />
 
 
@@ -87,10 +69,12 @@
             style="?android:attr/borderlessButtonStyle"
             android:layout_width="24dp"
             android:layout_height="24dp"
+            android:layout_marginStart="56dp"
             android:layout_marginTop="17dp"
-            android:layout_marginEnd="24dp"
+            android:layout_marginEnd="8dp"
             android:background="@drawable/ellipse_btn"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/mpesa_paystack"
             app:layout_constraintTop_toBottomOf="@+id/line_1_4" />
 
         <View

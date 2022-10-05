@@ -11,6 +11,7 @@ import static com.karanja.utils.Utils.getTimestamp;
 import static com.karanja.utils.Utils.sanitizePhoneNumber;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
 import android.app.ProgressDialog;
@@ -26,12 +27,19 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.karanja.Api.ParkingApi;
 import com.karanja.Api.Responses.Park.ParkingSpaceDataResponse;
 import com.karanja.Api.RetrofitClient;
@@ -48,6 +56,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.Objects;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -105,6 +114,7 @@ public class ConfirmationActivity extends BaseActivity {
         time_out.setText(SharePreference.getINSTANCE(getApplicationContext()).getOutFormattedTime());
         vehicle_name.setText(SharePreference.getINSTANCE(getApplicationContext()).getMainVehicleName());
         vehicle_number.setText(SharePreference.getINSTANCE(getApplicationContext()).getMainVehicleNumber());
+        phoneNumber.setText(SharePreference.getINSTANCE(getApplicationContext()).getPhoneNumber());
         try {
             String[] dur = SharePreference.getINSTANCE(getApplicationContext()).getDuration().split(" ");
             long time_difference = Integer.parseInt(dur[0]) + (Integer.parseInt(dur[2]) / 60);
@@ -126,7 +136,7 @@ public class ConfirmationActivity extends BaseActivity {
         mApiClient.setIsDebug(true); //Set True to enable logging, false to disable.
 
         getAccessToken();
-        mDatabase  = FirebaseFirestore.getInstance();
+        mDatabase = FirebaseFirestore.getInstance();
         confirm_button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -163,39 +173,7 @@ public class ConfirmationActivity extends BaseActivity {
     }
 
 
-    private void bookSpace() {
-        String token = SharePreference.getINSTANCE(getApplicationContext()).getAccessToken();
 
-        ParkingApi parkingApi = RetrofitClient.getInstance().create(ParkingApi.class);
-        bookingSchedule.setCheckIn(SharePreference.getINSTANCE(this).getCheckIn());
-        bookingSchedule.setCheckOut(SharePreference.getINSTANCE(this).getCheckOut());
-        bookingSchedule.setVehicleNo(SharePreference.getINSTANCE(getApplicationContext()).getMainVehicleNumber());
-        parkingApi.scheduleParkingSpace(token, car_park_id, bookingSchedule).enqueue(new Callback<ParkingSpaceDataResponse<UserPackedSpace>>() {
-            @Override
-            public void onResponse(Call<ParkingSpaceDataResponse<UserPackedSpace>> call, Response<ParkingSpaceDataResponse<UserPackedSpace>> response) {
-                if (response.isSuccessful()) {
-                    showAlert();
-                    progressBar.setVisibility(View.INVISIBLE);
-
-                } else if (response.code() == 500) {
-                    showAlert();
-                    progressBar.setVisibility(View.INVISIBLE);
-                } else {
-                    showToast("Failure " + response.code());
-                    confirm_button.setClickable(true);
-                    progressBar.setVisibility(View.INVISIBLE);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ParkingSpaceDataResponse<UserPackedSpace>> call, Throwable t) {
-                showToast("Please Try again");
-                confirm_button.setClickable(true);
-                progressBar.setVisibility(View.INVISIBLE);
-            }
-        });
-
-    }
 
     public void editBooking(View view) {
         Intent intent = new Intent(ConfirmationActivity.this, ScheduleActivity.class);
@@ -214,68 +192,43 @@ public class ConfirmationActivity extends BaseActivity {
         SharePreference.getINSTANCE(this).setDuration("-----");
         SharePreference.getINSTANCE(this).setINFormattedDate("-----");
         SharePreference.getINSTANCE(this).setOutFormattedDate("-----");
-        checkIn += ", " +SharePreference.getINSTANCE(getApplicationContext()).getINFormattedTime();
-        checkOut += ", " +SharePreference.getINSTANCE(getApplicationContext()).getOutFormattedTime();
+        checkIn += ", " + SharePreference.getINSTANCE(getApplicationContext()).getINFormattedTime();
+        checkOut += ", " + SharePreference.getINSTANCE(getApplicationContext()).getOutFormattedTime();
         dialog.setCanceledOnTouchOutside(false);
-        invoice.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                DocumentReference parkingSpace = mDatabase.collection("parkingspaces")
-                        .document("Naivas");
-                parkingSpace.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        ParkingSpace parkingSpace1 = documentSnapshot.toObject(ParkingSpace.class);
-                        int status = parkingSpace1.getStatus() - 1;
-                        parkingSpace
-                                .update("status", status)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Log.d("TAG", "DocumentSnapshot successfully updated!");
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.w("TAG", "Error updating document", e);
-                                    }
-                                });
-                    }
-                });
-                String userID = SharePreference.getINSTANCE(getApplicationContext()).getUser();
-                UserPackedSpace userPackedSpace = new UserPackedSpace();
-                Random rand = new Random();
-                String bookingId = String.format("%06d", rand.nextInt(999999));
-                SharePreference.getINSTANCE(getApplicationContext()).setLoggedUserId(bookingId);
-                userPackedSpace.setCarParkBookingId(bookingId);
-                int index = rand.nextInt(7);
-                String[] locations = {"Floor 3 Section D Lane 3","Ikeja City Mall Section 1 Lane 20", "National Theatre Section 11 Lane 1", "University of Lagos Section 20 Lane 3", "Section 5 Lane 5", "Silverbird Galleria Section 3 Lane 12", "Palms Shopping MallSection 4 Lane 1"};
-                userPackedSpace.setAddress(locations[index]);
-                userPackedSpace.setCheckIn(checkIn);
-                userPackedSpace.setCheckOut(checkOut);
-                userPackedSpace.setVehicleNo(SharePreference.getINSTANCE(getApplicationContext()).getMainVehicleNumber());
-                userPackedSpace.setOwner(SharePreference.getINSTANCE(getApplicationContext()).getMainVehicleName());
-                userPackedSpace.setAmount(String.valueOf(payment));
-                mDatabase.collection("parkingspaces").document(userID).collection("current").document("space")
-                        .set(userPackedSpace)
-                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                            @Override
-                            public void onSuccess(Void aVoid) {
-                                Log.d(TAG, "DocumentSnapshot successfully written!");
-                            }
-                        })
-                        .addOnFailureListener(new OnFailureListener() {
-                            @Override
-                            public void onFailure(@NonNull Exception e) {
-                                Log.w(TAG, "Error writing document", e);
-                            }
-                        });;
-
-                Intent intent = new Intent(ConfirmationActivity.this, InvoiceActivity.class);
-                startActivity(intent);
-                finish();
-            }
+        String userID = SharePreference.getINSTANCE(getApplicationContext()).getUser();
+        invoice.setOnClickListener(view -> {
+            UserPackedSpace userPackedSpace = new UserPackedSpace();
+            Random rand = new Random();
+            String bookingId = String.format("%06d", rand.nextInt(999999));
+            SharePreference.getINSTANCE(getApplicationContext()).setLoggedUserId(bookingId);
+            userPackedSpace.setCarParkBookingId(bookingId);
+            int index = rand.nextInt(7);
+            String[] locations = {"Floor 3 Section D Lane 3", "Ikeja City Mall Section 1 Lane 20", "National Theatre Section 11 Lane 1", "University of Lagos Section 20 Lane 3", "Section 5 Lane 5", "Silverbird Galleria Section 3 Lane 12", "Palms Shopping MallSection 4 Lane 1"};
+            SharePreference.getINSTANCE(getApplicationContext()).setAddress(locations[index]);
+            userPackedSpace.setAddress(locations[index]);
+            userPackedSpace.setCheckIn(checkIn);
+            userPackedSpace.setCheckOut(checkOut);
+            userPackedSpace.setVehicleNo(SharePreference.getINSTANCE(getApplicationContext()).getMainVehicleNumber());
+            userPackedSpace.setOwner(SharePreference.getINSTANCE(getApplicationContext()).getMainVehicleName());
+            userPackedSpace.setAmount(String.valueOf(payment));
+            mDatabase.collection("parkingspaces").document(userID).collection("current")
+                    .add(userPackedSpace)
+                    .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully written!"))
+                    .addOnFailureListener(e -> Log.w(TAG, "Error writing document", e));
+            DocumentReference parkingSpace = mDatabase.collection("parkingspaces")
+                    .document("Naivas");
+            parkingSpace.get().addOnSuccessListener(documentSnapshot -> {
+                ParkingSpace parkingSpace1 = documentSnapshot.toObject(ParkingSpace.class);
+                assert parkingSpace1 != null;
+                int status = parkingSpace1.getStatus() - 1;
+                parkingSpace
+                        .update("status", status)
+                        .addOnSuccessListener(aVoid -> Log.d("TAG", "DocumentSnapshot successfully updated!"))
+                        .addOnFailureListener(e -> Log.w("TAG", "Error updating document", e));
+            });
+            Intent intent = new Intent(ConfirmationActivity.this, InvoiceActivity.class);
+            startActivity(intent);
+            finish();
         });
     }
 
@@ -322,11 +275,11 @@ public class ConfirmationActivity extends BaseActivity {
                 }
             }
 
-        @Override
-        public void onFailure (@NonNull Call < STKPush > call, @NonNull Throwable t){
-            Log.d("TAGTHRO", t.toString());
-            mProgressDialog.dismiss();
-        }
-    });
-}
+            @Override
+            public void onFailure(@NonNull Call<STKPush> call, @NonNull Throwable t) {
+                Log.d("TAGTHRO", t.toString());
+                mProgressDialog.dismiss();
+            }
+        });
+    }
 }

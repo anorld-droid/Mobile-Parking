@@ -3,17 +3,31 @@
   <component name="DesignSurface">
     <option name="filePathToZoomLevelMap">
       <map>
+        <entry key="app/src/main/res/drawable/ic_car_button.xml" value="0.3045" />
+        <entry key="app/src/main/res/drawable/input_text.xml" value="0.2975" />
+        <entry key="app/src/main/res/layout-v28/fragment_payment_methods.xml" value="0.17274569402228976" />
         <entry key="app/src/main/res/layout/activity_confirmation.xml" value="0.18072916666666666" />
+        <entry key="app/src/main/res/layout/activity_enter_name.xml" value="0.35520833333333335" />
+        <entry key="app/src/main/res/layout/activity_get_all_car_details.xml" value="0.18072916666666666" />
         <entry key="app/src/main/res/layout/activity_home.xml" value="0.35520833333333335" />
         <entry key="app/src/main/res/layout/activity_invoice.xml" value="0.18072916666666666" />
         <entry key="app/src/main/res/layout/activity_my_parking_space.xml" value="0.35520833333333335" />
+        <entry key="app/src/main/res/layout/activity_password.xml" value="0.35520833333333335" />
+        <entry key="app/src/main/res/layout/activity_payment_method.xml" value="0.35520833333333335" />
+        <entry key="app/src/main/res/layout/activity_register.xml" value="0.35520833333333335" />
         <entry key="app/src/main/res/layout/activity_schedule.xml" value="0.18072916666666666" />
+        <entry key="app/src/main/res/layout/activity_settings.xml" value="0.35520833333333335" />
         <entry key="app/src/main/res/layout/change_date_dialog.xml" value="0.22" />
-        <entry key="app/src/main/res/layout/current_space.xml" value="0.35520833333333335" />
+        <entry key="app/src/main/res/layout/current_space.xml" value="0.22" />
         <entry key="app/src/main/res/layout/dialog_my_vehicle.xml" value="0.35520833333333335" />
+        <entry key="app/src/main/res/layout/fragment_about.xml" value="0.35520833333333335" />
+        <entry key="app/src/main/res/layout/fragment_current_space.xml" value="0.22" />
         <entry key="app/src/main/res/layout/fragment_my_vehicle.xml" value="0.18072916666666666" />
         <entry key="app/src/main/res/layout/fragment_parking_history.xml" value="0.18072916666666666" />
+        <entry key="app/src/main/res/layout/fragment_payment_methods.xml" value="0.5" />
+        <entry key="app/src/main/res/layout/fragment_promotion.xml" value="0.17274569402228976" />
         <entry key="app/src/main/res/layout/parking_history_item.xml" value="0.18072916666666666" />
+        <entry key="app/src/main/res/xml/settings_preferences.xml" value="0.35520833333333335" />
       </map>
     </option>
   </component>

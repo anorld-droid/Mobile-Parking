@@ -3,28 +3,19 @@ package com.karanja.Register;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
-import android.text.TextUtils;
-import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.karanja.R;
-import com.karanja.views.BasicUtils;
-import com.karanja.views.HomeActivity;
 
 
 public class RegisterActivity extends AppCompatActivity {
@@ -36,7 +27,7 @@ public class RegisterActivity extends AppCompatActivity {
         setContentView(R.layout.activity_register);
         final EditText fullname =findViewById(R.id.fullname);
         final EditText username =findViewById(R.id.username);
-        final EditText idNo =findViewById(R.id.idNo);
+        final EditText phoneNo =findViewById(R.id.phone_number);
         final EditText password =findViewById(R.id.password);
         final EditText conPassword =findViewById(R.id.conPassword);
 
@@ -48,11 +39,11 @@ public class RegisterActivity extends AppCompatActivity {
             //get data from edittext  into strings var
             final String fullnameTxt = fullname.getText().toString();
             final String usernameTxt =username.getText().toString();
-            final String idNoTxt = idNo.getText().toString();
+            final String phoneNoTxt = phoneNo.getText().toString();
             final String passwordTxt = password.getText().toString();
             final String conpasswordTxt = conPassword.getText().toString();
             //check all fields are filled
-            if (fullnameTxt.isEmpty() || usernameTxt.isEmpty() || idNoTxt.isEmpty() || passwordTxt.isEmpty()){
+            if (fullnameTxt.isEmpty() || usernameTxt.isEmpty() || phoneNoTxt.isEmpty() || passwordTxt.isEmpty()){
                 Toast.makeText(RegisterActivity.this, "Fill the missing fields", Toast.LENGTH_SHORT).show();
             }
             //password match
@@ -75,7 +66,7 @@ public class RegisterActivity extends AppCompatActivity {
 
                             // databaseReference.child("user").child(idNoTxt).child("email").setValue(emailTxt);
                             databaseReference.child("user").child(usernameTxt).child("password").setValue(passwordTxt);
-                            databaseReference.child("user").child(usernameTxt).child("username").setValue(idNoTxt);
+                            databaseReference.child("user").child(usernameTxt).child("phoneNumber").setValue(phoneNoTxt);
 
                             Toast.makeText(RegisterActivity.this,"Registered Succesfullly",Toast.LENGTH_SHORT).show();
                             finish();

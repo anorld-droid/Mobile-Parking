@@ -8,6 +8,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.cardview.widget.CardView;
 import androidx.recyclerview.widget.RecyclerView;
@@ -82,6 +83,8 @@ public class AddressAdapter extends RecyclerView.Adapter<AddressAdapter.CustomVi
                     context.startActivity(i);
                     ((Activity)context).finish();
 
+                }else {
+                    Toast.makeText(context, "No parking space available", Toast.LENGTH_SHORT).show();
                 }
             }
         });

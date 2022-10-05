@@ -9,7 +9,7 @@ public class UserPackedSpace {
 
     @SerializedName("id")
     @Expose
-    private int id;
+    private String id;
     @SerializedName("car_park_id")
     @Expose
     private int carParkId;
@@ -62,11 +62,11 @@ public class UserPackedSpace {
     @Expose
     private Object imageLink;
 
-    public int getId() {
+    public String getId() {
         return id;
     }
 
-    public void setId(int id) {
+    public void setId(String id) {
         this.id = id;
     }
 

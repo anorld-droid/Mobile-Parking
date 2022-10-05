@@ -95,6 +95,7 @@ public class LoginActivity extends AppCompatActivity {
                             final String getpassword =dataSnapshot.child(usernameTxt).child("password").getValue(String.class);
                             if (getpassword.equals(passwordTxt)){
                                 Toast.makeText(LoginActivity.this, "login success", Toast.LENGTH_SHORT).show();
+                                SharePreference.getINSTANCE(getApplicationContext()).setPhoneNumber(dataSnapshot.child(usernameTxt).child("phoneNumber").getValue(String.class));
                                 //login to user activity
                                 startActivity(new Intent(LoginActivity.this, HomeActivity.class));
                                 finish();

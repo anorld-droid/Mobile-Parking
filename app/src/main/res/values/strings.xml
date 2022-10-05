@@ -68,6 +68,8 @@
     <string name="send">Send</string>
     <string name="tap_here_to_select">Tap here to select</string>
     <string name="hint">0757913481</string>
+    <string name="phone_number">M-Pesa phone number 07..</string>
+    <string name="check_out">Check Out</string>
 
 
 </resources>

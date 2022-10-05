@@ -32,9 +32,12 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.ListenerRegistration;
 import com.karanja.Model.AccessToken;
 import com.karanja.Model.Park.ParkingSpace;
 import com.karanja.Model.Park.UserPackedSpace;
@@ -127,7 +130,20 @@ public class ParkingHistoryAdapter extends RecyclerView.Adapter<ParkingHistoryAd
 
         holder.re_book.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                changeDate(parkingHistory.get(position));
+                DocumentReference docRef = mDatabase.collection("parkingspaces").document("Naivas");
+                docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+                    @Override
+                    public void onSuccess(DocumentSnapshot documentSnapshot) {
+                        ParkingSpace parkingSpace = documentSnapshot.toObject(ParkingSpace.class);
+                      if (parkingSpace.getStatus() > 0){
+                          changeDate(parkingHistory.get(holder.getLayoutPosition()));
+
+                      }else{
+                          Toast.makeText(context, "No parking space available", Toast.LENGTH_SHORT).show();
+                      }
+
+                    }
+                });
 //
             }
         });
@@ -139,21 +155,6 @@ public class ParkingHistoryAdapter extends RecyclerView.Adapter<ParkingHistoryAd
         return parkingHistory.size();
     }
 
-    private void setLayoutOnClickListers(View view) {
-        re_book = view.findViewById(R.id.ph_btn_rebook);
-
-        re_book.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent m = new Intent(context, DetailsActivity.class);
-                Bundle a = new Bundle();
-                a.putString("location", "parkingHistoryDate");
-                m.putExtra("location", a);
-                context.startActivity(m);
-            }
-
-        });
-    }
 
     public void getAccessToken() {
         mApiClient.setGetAccessToken(true);
@@ -220,20 +221,10 @@ public class ParkingHistoryAdapter extends RecyclerView.Adapter<ParkingHistoryAd
                         userPackedSpace.setOwner(parkingHistoryModel.getOwner());
                         userPackedSpace.setAmount(String.valueOf(payment));
 
-                        mDatabase.collection("parkingspaces").document(userID).collection("current").document("space")
-                                .set(userPackedSpace)
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Log.d("R/B", "DocumentSnapshot successfully written!");
-                                    }
-                                })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.w("R/B", "Error writing document", e);
-                                    }
-                                });
+                        mDatabase.collection("parkingspaces").document(userID).collection("current")
+                                .add(userPackedSpace)
+                                .addOnSuccessListener(aVoid -> Log.d("R/B", "DocumentSnapshot successfully written!"))
+                                .addOnFailureListener((OnFailureListener) e -> Log.w("R/B", "Error writing document", e));
                         mDatabase.collection("parkingspaces").document(userID).collection("history").document(parkingHistoryModel.getId())
                                 .delete()
                                 .addOnSuccessListener(new OnSuccessListener<Void>() {
@@ -242,38 +233,18 @@ public class ParkingHistoryAdapter extends RecyclerView.Adapter<ParkingHistoryAd
                                         Log.d("CURRENT", "DocumentSnapshot successfully deleted!");
                                     }
                                 })
-                                .addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Log.w("CURRENT", "Error deleting document", e);
-                                    }
-                                });
+                                .addOnFailureListener(e -> Log.w("CURRENT", "Error deleting document", e));
                         DocumentReference parkingSpace = mDatabase.collection("parkingspaces")
                                 .document("Naivas");
-                        parkingSpace.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                            @Override
-                            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                                ParkingSpace parkingSpace1 = documentSnapshot.toObject(ParkingSpace.class);
-                                assert parkingSpace1 != null;
-                                int status = parkingSpace1.getStatus()-1
-                                ;
-                                parkingSpace
-                                        .update("status", status)
-                                        .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                            @Override
-                                            public void onSuccess(Void aVoid) {
-                                                Log.d("TAG", "DocumentSnapshot successfully updated!");
-                                            }
-                                        })
-                                        .addOnFailureListener(new OnFailureListener() {
-                                            @Override
-                                            public void onFailure(@NonNull Exception e) {
-                                                Log.w("TAG", "Error updating document", e);
-                                            }
-                                        });
-                            }
+                        parkingSpace.get().addOnSuccessListener(documentSnapshot -> {
+                            ParkingSpace parkingSpace1 = documentSnapshot.toObject(ParkingSpace.class);
+                            assert parkingSpace1 != null;
+                            int status = parkingSpace1.getStatus() - 1;
+                            parkingSpace
+                                    .update("status", status)
+                                    .addOnSuccessListener(aVoid -> Log.d("TAG", "DocumentSnapshot successfully updated!"))
+                                    .addOnFailureListener(e -> Log.w("TAG", "Error updating document", e));
                         });
-
                         Toast.makeText(context, "Re-book Successful", Toast.LENGTH_LONG).show();
 
                     } else {
@@ -316,11 +287,12 @@ public class ParkingHistoryAdapter extends RecyclerView.Adapter<ParkingHistoryAd
         });
         tvDuration = (TextView) dialog.findViewById(R.id.textView13);
         phoneNumber = (EditText) dialog.findViewById(R.id.phone_number);
+        phoneNumber.setText(SharePreference.getINSTANCE(getApplicationContext()).getPhoneNumber());
         Button dialogButton = (Button) dialog.findViewById(R.id.change);
         dialogButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(context, phoneNumber.getText().toString(), Toast.LENGTH_SHORT).show();
+//                Toast.makeText(context, phoneNumber.getText().toString(), Toast.LENGTH_SHORT).show();
                 performSTKPush(phoneNumber.getText().toString(), parkingHistory);
                 dialog.dismiss();
             }

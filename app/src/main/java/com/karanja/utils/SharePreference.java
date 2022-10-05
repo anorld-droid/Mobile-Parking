@@ -22,6 +22,7 @@ public class SharePreference {
     private static final String CHECK_OUT="com.carpark_CHECK_OUT";
     private static final String DURATION="com.carpark_DURATION";
     private static final String USER="com.user";
+    private static final String ADDRESS="com.address";
     private static  final String PHONE_NUMBER="com.phone_number";
 
 
@@ -174,6 +175,14 @@ public class SharePreference {
 
     public String getPhoneNumber(){
         return sharedPreferences.getString(PHONE_NUMBER, "-----");
+    }
+
+    public void setAddress(String address) {
+        sharedPreferences.edit().putString(ADDRESS,address).apply();
+    }
+
+    public String getAddress(){
+        return sharedPreferences.getString(ADDRESS, "-----");
     }
 
 }

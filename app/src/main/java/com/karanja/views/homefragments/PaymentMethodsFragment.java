@@ -13,46 +13,20 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.karanja.R;
+import com.karanja.utils.SharePreference;
 
 import co.paystack.android.PaystackSdk;
 // import com.karanja.views.BarterActivity;
 
 public class PaymentMethodsFragment extends Fragment {
-    private TextView card;
     private TextView   mpesa;
-    private Button barterBtn;
-    ProgressBar paymentBar;
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View root = inflater.inflate(R.layout.fragment_payment_methods, container, false);
-
-//        assert getSupportActionBar() != null;   //null check
-//        getSupportActionBar().setDisplayHomeAsUpEnabled(true);   //show back button
-
-
-
-
-       // paymentBar.setVisibility(View.INVISIBLE);
-
-
+        mpesa = root.findViewById(R.id.mpesa_paystack);
+        mpesa.setText(SharePreference.getINSTANCE(getContext()).getPhoneNumber());
         PaystackSdk.initialize(getActivity());
-
-
-
-
-
-
         return root;
-
-
     }
-
-
-
-
-
-
-
 }

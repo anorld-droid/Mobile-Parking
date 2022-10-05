@@ -50,6 +50,8 @@ public class InvoiceActivity extends AppCompatActivity{
         vehicle_name = findViewById(R.id.vehicle_name);
         vehicle_number = findViewById(R.id.vehicle_number);
         booking_id = findViewById(R.id.booking_id);
+        address = findViewById(R.id.parking_slot);
+
 
 
         date_in.setText(SharePreference.getINSTANCE(getApplicationContext()).getINFormattedDay());
@@ -58,6 +60,7 @@ public class InvoiceActivity extends AppCompatActivity{
         time_out.setText(SharePreference.getINSTANCE(getApplicationContext()).getOutFormattedTime());
         vehicle_name.setText(SharePreference.getINSTANCE(getApplicationContext()).getMainVehicleName());
         vehicle_number.setText(SharePreference.getINSTANCE(getApplicationContext()).getMainVehicleNumber());
+        address.setText(SharePreference.getINSTANCE(getApplicationContext()).getAddress());
         booking_id.setText(SharePreference.getINSTANCE(getApplicationContext()).getLoggedUserId());
         showQrCode();
 
