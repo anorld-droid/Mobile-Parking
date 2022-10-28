@@ -36,9 +36,11 @@ import com.karanja.Api.ParkingApi;
 import com.karanja.Api.Responses.BaseDataResponse;
 import com.karanja.Api.RetrofitClient;
 import com.karanja.Model.Park.ParkingSpace;
+import com.karanja.Model.Park.SlotDetails;
 import com.karanja.Model.Vehicle;
 import com.karanja.R;
 import com.karanja.adapter.BookingVehicleAdapter;
+import com.karanja.adapter.SlotAdapter;
 import com.karanja.utils.SharePreference;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -55,11 +57,9 @@ import retrofit2.Response;
 public class ScheduleActivity extends AppCompatActivity {
     private TextView tvCheckIn;
     private TextView tvCheckOut;
-    private TextView tvDuration, park, address, vehicle_number;
-    private Button schedule_btn;
+    private TextView tvDuration;
     final Calendar checkInDate = Calendar.getInstance();
     final Calendar checkOutDate = Calendar.getInstance();
-    private final String PREFERENCE_FILE_KEY = "location_pref";
     private FirebaseFirestore db;
 
     @Override
@@ -71,13 +71,14 @@ public class ScheduleActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         db = FirebaseFirestore.getInstance();
-        park = findViewById(R.id.textView2);
-        address = findViewById(R.id.textView3);
+        TextView park = findViewById(R.id.textView2);
+        TextView address = findViewById(R.id.textView3);
         tvCheckIn = findViewById(R.id.textView7);
         tvCheckOut = findViewById(R.id.textView10);
         tvDuration = findViewById(R.id.textView13);
-        vehicle_number = findViewById(R.id.textView15);
-        schedule_btn = findViewById(R.id.schedule_button);
+        TextView parkingSlot = findViewById(R.id.parking_slot_tv2);
+        TextView vehicle_number = findViewById(R.id.textView15);
+        Button schedule_btn = findViewById(R.id.schedule_button);
 
         String date_in = SharePreference.getINSTANCE(getApplicationContext()).getINFormattedDate();
         String date_out = SharePreference.getINSTANCE(getApplicationContext()).getOutFormattedDate();
@@ -88,6 +89,7 @@ public class ScheduleActivity extends AppCompatActivity {
         tvCheckOut.setText(date_out);
         tvDuration.setText(mDuration);
 
+        String PREFERENCE_FILE_KEY = "location_pref";
         SharedPreferences sharedPref = getApplicationContext().getSharedPreferences(PREFERENCE_FILE_KEY, Context.MODE_PRIVATE);
         String park_name = sharedPref.getString("Park_Name", "null");
         String park_address = sharedPref.getString("Park_Address", "null");
@@ -95,23 +97,17 @@ public class ScheduleActivity extends AppCompatActivity {
         park.setText(park_name);
         address.setText(park_address);
         String vehicle_no = SharePreference.getINSTANCE(this).getMainVehicleNumber();
+        String parking_slot = SharePreference.getINSTANCE(this).getPickedSlot();
 
         vehicle_number.setText(vehicle_no);
+        parkingSlot.setText(parking_slot);
 
-        vehicle_number.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                showAlert();
-            }
-        });
+        vehicle_number.setOnClickListener(view -> showVehicleAlert());
+
+        parkingSlot.setOnClickListener(view -> showParkingSlotAlert());
 
 
-        schedule_btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                next();
-            }
-        });
+        schedule_btn.setOnClickListener(v -> next());
 
     }
 
@@ -215,7 +211,7 @@ public class ScheduleActivity extends AppCompatActivity {
     }
 
 
-    private void showAlert() {
+    private void showVehicleAlert() {
         final List<Vehicle> vehicleList;
         final RecyclerView recyclerView;
         final BookingVehicleAdapter myVehicleAdapter;
@@ -276,8 +272,60 @@ public class ScheduleActivity extends AppCompatActivity {
                 dialog.dismiss();
             }
         });
-
-
     }
 
+    private void showParkingSlotAlert() {
+        final List<SlotDetails> slotList;
+        final RecyclerView recyclerView;
+        final SlotAdapter mySlotAdapter;
+        final ProgressBar progressBar;
+        final TextView new_text;
+        CardView single_slot;
+
+
+        final AlertDialog.Builder myDialog = new AlertDialog.Builder(this);
+        final View customView = getLayoutInflater().inflate(R.layout.dialog_my_vehicle, null);
+
+        final View slotView = getLayoutInflater().inflate(R.layout.slot_layout_item, null);
+        single_slot = slotView.findViewById(R.id.single_slot_card_view);
+
+
+        new_text = customView.findViewById(R.id.new_text);
+        progressBar = customView.findViewById(R.id.progressBar);
+        new_text.setVisibility(View.INVISIBLE);
+        slotList = new ArrayList<>();
+        recyclerView = customView.findViewById(R.id.mv_recyclerView);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getApplicationContext());
+
+        recyclerView.setLayoutManager(layoutManager);
+        mySlotAdapter = new SlotAdapter(getApplicationContext(), slotList);
+        recyclerView.setAdapter(mySlotAdapter);
+        DocumentReference docRef = db.collection("parkingspaces").document("Naivas");
+        progressBar.setVisibility(View.VISIBLE);
+        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
+            @Override
+            public void onSuccess(DocumentSnapshot documentSnapshot) {
+                ParkingSpace parkingSpace = documentSnapshot.toObject(ParkingSpace.class);
+                new_text.setVisibility(View.INVISIBLE);
+                assert parkingSpace != null;
+                slotList.addAll(parkingSpace.getSlots());
+                mySlotAdapter.notifyDataSetChanged();
+                if (slotList.isEmpty()) {
+                    new_text.setVisibility(View.VISIBLE);
+                }
+                progressBar.setVisibility(View.GONE);
+            }
+        });
+        myDialog.setView(customView);
+        final AlertDialog dialog = myDialog.create();
+        dialog.show();
+        dialog.setCanceledOnTouchOutside(false);
+        single_slot.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+    }
 }

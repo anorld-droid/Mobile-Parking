@@ -15,9 +15,6 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -29,34 +26,27 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.ListenerRegistration;
 import com.karanja.Model.AccessToken;
 import com.karanja.Model.Park.ParkingSpace;
+import com.karanja.Model.Park.SlotDetails;
 import com.karanja.Model.Park.UserPackedSpace;
 import com.karanja.Model.STKPush;
 import com.karanja.Model.review.ParkingHistoryModel;
 import com.karanja.R;
 import com.karanja.utils.DarajaApiClient;
 import com.karanja.utils.SharePreference;
-import com.karanja.views.DetailsActivity;
-import com.karanja.views.ScheduleActivity;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.List;
 import java.util.Random;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.recyclerview.widget.RecyclerView;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -131,20 +121,21 @@ public class ParkingHistoryAdapter extends RecyclerView.Adapter<ParkingHistoryAd
         holder.re_book.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 DocumentReference docRef = mDatabase.collection("parkingspaces").document("Naivas");
-                docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-                    @Override
-                    public void onSuccess(DocumentSnapshot documentSnapshot) {
-                        ParkingSpace parkingSpace = documentSnapshot.toObject(ParkingSpace.class);
-                      if (parkingSpace.getStatus() > 0){
-                          changeDate(parkingHistory.get(holder.getLayoutPosition()));
-
-                      }else{
-                          Toast.makeText(context, "No parking space available", Toast.LENGTH_SHORT).show();
-                      }
-
+                docRef.get().addOnSuccessListener(documentSnapshot -> {
+                    ParkingSpace parkingSpace = documentSnapshot.toObject(ParkingSpace.class);
+                    int slot = Integer.parseInt(parkingHistory.get(holder.getLayoutPosition()).getId());
+                    assert parkingSpace != null;
+                    SlotDetails slotDetails = parkingSpace.getSlots().get(slot - 1);
+                    if (parkingSpace.getStatus() > 0) {
+                        if (slotDetails.getOccupant() == null) {
+                            changeDate(parkingHistory.get(holder.getLayoutPosition()));
+                        } else {
+                            Toast.makeText(context, "Slot " + slot + "not available", Toast.LENGTH_SHORT).show();
+                        }
+                    } else {
+                        Toast.makeText(context, "No parking space available", Toast.LENGTH_SHORT).show();
                     }
                 });
-//
             }
         });
     }

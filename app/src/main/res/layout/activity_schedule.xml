@@ -222,6 +222,34 @@
                     android:textSize="18sp" />
             </LinearLayout>
 
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="20dp"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/parking_slot_tv1"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nunito"
+                    android:text="@string/parking_slot"
+                    android:textColor="@color/text_black"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:id="@+id/parking_slot_tv2"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:fontFamily="@font/nunito"
+                    android:text="@string/tap_here_to_select"
+                    android:textAlignment="textEnd"
+                    android:textSize="18sp" />
+            </LinearLayout>
+
 <!--            <LinearLayout-->
 <!--                android:layout_width="match_parent"-->
 <!--                android:layout_height="wrap_content"-->

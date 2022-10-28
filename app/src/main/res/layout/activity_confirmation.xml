@@ -83,7 +83,7 @@
                 android:textSize="17sp" />
 
             <TextView
-                android:id="@+id/tv5"
+                android:id="@+id/parking_slot_tv5"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:fontFamily="@font/nunito"

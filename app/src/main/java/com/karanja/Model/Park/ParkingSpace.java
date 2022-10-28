@@ -3,6 +3,8 @@ package com.karanja.Model.Park;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.List;
+
 public class ParkingSpace {
 
     @SerializedName("id")
@@ -35,6 +37,10 @@ public class ParkingSpace {
     @SerializedName("updated_at")
     @Expose
     private String updatedAt;
+
+    @SerializedName("slots")
+    @Expose
+    private List<SlotDetails> slots;
 
     public int getId() {
         return id;
@@ -116,4 +122,10 @@ public class ParkingSpace {
         this.updatedAt = updatedAt;
     }
 
+    public void setSlots(List<SlotDetails> slots) {
+        this.slots = slots;
+    }
+    public List<SlotDetails> getSlots() {
+        return this.slots;
+    }
 }

@@ -51,7 +51,6 @@ public class ListFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         final View root = inflater.inflate(R.layout.fragment_list, container, false);
-        Context context = getActivity();
         ParkingSpace = new ArrayList<>();
         FirebaseFirestore db = FirebaseFirestore.getInstance();
         recyclerView = root.findViewById(R.id.map_list_view);
@@ -62,9 +61,6 @@ public class ListFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(addressAdapter);
 
-
-        String token = SharePreference.getINSTANCE(getContext()).getAccessToken();
-        ParkingApi parkingApi = RetrofitClient.getInstance().create(ParkingApi.class);
         DocumentReference docRef = db.collection("parkingspaces").document("Naivas");
         progressBar.setVisibility(View.VISIBLE);
         docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
@@ -77,26 +73,7 @@ public class ListFragment extends Fragment {
 
             }
         });
-        parkingApi.getAllParkingSpace(token).enqueue(new Callback<ParkingSpaceAllResponse>() {
-            @Override
-            public void onResponse(Call<ParkingSpaceAllResponse> call, Response<ParkingSpaceAllResponse> response) {
-                if (response.isSuccessful()) {
-                    Log.e("Response code", String.valueOf(response.code()));
-                    assert response.body() != null;
-                    ParkingSpace.addAll(response.body().getParkingSpaces());
-                    addressAdapter.notifyDataSetChanged();
 
-                } else {
-                    progressBar.setVisibility(View.INVISIBLE);
-                }
-            }
-
-            @Override
-            public void onFailure(Call<ParkingSpaceAllResponse> call, Throwable t) {
-                Toast.makeText(getContext(), t.getMessage(), Toast.LENGTH_LONG).show();
-                progressBar.setVisibility(View.INVISIBLE);
-            }
-        });
         return root;
     }
 }

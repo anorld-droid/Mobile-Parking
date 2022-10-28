@@ -60,7 +60,7 @@ public class InvoiceActivity extends AppCompatActivity{
         time_out.setText(SharePreference.getINSTANCE(getApplicationContext()).getOutFormattedTime());
         vehicle_name.setText(SharePreference.getINSTANCE(getApplicationContext()).getMainVehicleName());
         vehicle_number.setText(SharePreference.getINSTANCE(getApplicationContext()).getMainVehicleNumber());
-        address.setText(SharePreference.getINSTANCE(getApplicationContext()).getAddress());
+        address.setText(SharePreference.getINSTANCE(getApplicationContext()).getPickedSlot());
         booking_id.setText(SharePreference.getINSTANCE(getApplicationContext()).getLoggedUserId());
         showQrCode();
 
@@ -117,6 +117,7 @@ public class InvoiceActivity extends AppCompatActivity{
     @Override
     public void onBackPressed() {
         super.onBackPressed();
+        SharePreference.getINSTANCE(getApplicationContext()).setPickedSlot("");
         Intent intent = new Intent(InvoiceActivity.this, HomeActivity.class);
         startActivity(intent);
         finish();

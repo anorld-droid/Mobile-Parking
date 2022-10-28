@@ -1,68 +1,35 @@
 package com.karanja.adapter;
 
 import static com.facebook.FacebookSdk.getApplicationContext;
-import static com.karanja.utils.Constants.BUSINESS_SHORT_CODE;
-import static com.karanja.utils.Constants.CALLBACKURL;
-import static com.karanja.utils.Constants.PARTYB;
-import static com.karanja.utils.Constants.PASSKEY;
-import static com.karanja.utils.Constants.TRANSACTION_TYPE;
-import static com.karanja.utils.Utils.getPassword;
-import static com.karanja.utils.Utils.getTimestamp;
-import static com.karanja.utils.Utils.sanitizePhoneNumber;
 
-import android.app.DatePickerDialog;
-import android.app.Dialog;
-import android.app.ProgressDialog;
-import android.app.TimePickerDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.DatePicker;
-import android.widget.EditText;
 import android.widget.TextView;
-import android.widget.TimePicker;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.CollectionReference;
-import com.google.firebase.firestore.DocumentChange;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.ListenerRegistration;
-import com.karanja.Model.AccessToken;
 import com.karanja.Model.Park.ParkingSpace;
+import com.karanja.Model.Park.SlotDetails;
 import com.karanja.Model.Park.UserPackedSpace;
-import com.karanja.Model.STKPush;
 import com.karanja.Model.review.ParkingHistoryModel;
 import com.karanja.R;
-import com.karanja.utils.DarajaApiClient;
 import com.karanja.utils.SharePreference;
-import com.karanja.views.DetailsActivity;
-import com.karanja.views.ScheduleActivity;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.recyclerview.widget.RecyclerView;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class CurrentSpaceAdapter extends RecyclerView.Adapter<CurrentSpaceAdapter.CustomViewHolder> {
     private Context context;
@@ -82,11 +49,11 @@ public class CurrentSpaceAdapter extends RecyclerView.Adapter<CurrentSpaceAdapte
         public final View view;
         TextView bookingID;
         TextView parkingSlot;
-        TextView fromDate ;
-        TextView fromTime ;
-        TextView toDate ;
-        TextView toTime ;
-        TextView vehicle ;
+        TextView fromDate;
+        TextView fromTime;
+        TextView toDate;
+        TextView toTime;
+        TextView vehicle;
         TextView vehicle_name;
         Button check_out;
 
@@ -134,7 +101,7 @@ public class CurrentSpaceAdapter extends RecyclerView.Adapter<CurrentSpaceAdapte
             String timeTo = time.format(dateOut);
             if (dateOut.after(today)) {
                 holder.bookingID.setText(userPackedSpaces.get(position).getCarParkBookingId());
-                holder.parkingSlot.setText(userPackedSpaces.get(position).getAddress());
+                holder.parkingSlot.setText(String.valueOf("SLOT "+userPackedSpaces.get(position).getUserId()));
 
                 assert dateIn != null;
                 String inDate = date.format(dateIn);
@@ -148,8 +115,6 @@ public class CurrentSpaceAdapter extends RecyclerView.Adapter<CurrentSpaceAdapte
                 holder.toTime.setText(timeTo);
                 holder.vehicle_name.setText(userPackedSpaces.get(position).getOwner());
                 holder.vehicle.setText(userPackedSpaces.get(position).getVehicleNo().toUpperCase());
-                holder.bookingID.setText(userPackedSpaces.get(position).getCarParkBookingId());
-                holder.parkingSlot.setText(userPackedSpaces.get(position).getAddress());
             } else {
                 convert_to_history(position);
             }
@@ -171,7 +136,7 @@ public class CurrentSpaceAdapter extends RecyclerView.Adapter<CurrentSpaceAdapte
         return userPackedSpaces.size();
     }
 
-    private void convert_to_history( int position) {
+    private void convert_to_history(int position) {
         SimpleDateFormat formatter = new SimpleDateFormat("EEE, dd MMM, HH:mm:ss");
         try {
             Date dateOut = formatter.parse(userPackedSpaces.get(position).getCheckOut());
@@ -199,17 +164,7 @@ public class CurrentSpaceAdapter extends RecyclerView.Adapter<CurrentSpaceAdapte
                     .delete()
                     .addOnSuccessListener(aVoid -> Log.d("CURRENT", "DocumentSnapshot successfully deleted!"))
                     .addOnFailureListener(e -> Log.w("CURRENT", "Error deleting document", e));
-            DocumentReference parkingSpace = mDatabase.collection("parkingspaces")
-                    .document("Naivas");
-            parkingSpace.get().addOnSuccessListener(documentSnapshot1 -> {
-                ParkingSpace parkingSpace1 = documentSnapshot1.toObject(ParkingSpace.class);
-                assert parkingSpace1 != null;
-                int status = parkingSpace1.getStatus() + 1;
-                parkingSpace
-                        .update("status", status)
-                        .addOnSuccessListener(aVoid -> Log.d("TAG", "DocumentSnapshot successfully updated!"))
-                        .addOnFailureListener(e -> Log.w("TAG", "Error updating document", e));
-            });
+            updateSlots(userPackedSpaces.get(position).getUserId());
             mDatabase.collection("parkingspaces").document(userID).collection("history").add(phm)
                     .addOnSuccessListener(documentReference -> Log.d("HISTORY", "DocumentSnapshot successfully written!"))
                     .addOnFailureListener(e -> Log.w("TAG", "Error writing document", e));
@@ -218,4 +173,40 @@ public class CurrentSpaceAdapter extends RecyclerView.Adapter<CurrentSpaceAdapte
             e.printStackTrace();
         }
     }
+
+    private void updateSlots(int slot) {
+        DocumentReference parkingSpace = mDatabase.collection("parkingspaces")
+                .document("Naivas");
+        parkingSpace.get().addOnSuccessListener(documentSnapshot -> {
+            ParkingSpace parkingSpace1 = documentSnapshot.toObject(ParkingSpace.class);
+            assert parkingSpace1 != null;
+            int status = parkingSpace1.getStatus() + 1;
+            SlotDetails slotDetails = new SlotDetails();
+            slotDetails.setSlot(slot);
+            slotDetails.setOccupant(null);
+            slotDetails.setCheckIn(null);
+            slotDetails.setCheckOut(null);
+            List<SlotDetails> slots = parkingSpace1.getSlots();
+            slots.remove(slot - 1);
+            slots.add(slot - 1, slotDetails);
+            parkingSpace1.setSlots(slots);
+            parkingSpace1.setStatus(status);
+            mDatabase.collection("parkingspaces")
+                    .document("Naivas")
+                    .set(parkingSpace1)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d("CONVERTTOHISTORY", "DocumentSnapshot successfully written!");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w("CONVERTTOHISTORY", "Error writing document", e);
+                        }
+                    });
+        });
+    }
+
 }
