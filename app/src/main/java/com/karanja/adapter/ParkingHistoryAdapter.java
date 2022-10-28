@@ -53,6 +53,7 @@ import retrofit2.Callback;
 import retrofit2.Response;
 
 public class ParkingHistoryAdapter extends RecyclerView.Adapter<ParkingHistoryAdapter.CustomViewHolder> {
+    private String TAG = "ParkingHistoryAdapter";
     private Context context;
     private List<ParkingHistoryModel> parkingHistory;
     private Button re_book;
@@ -123,14 +124,14 @@ public class ParkingHistoryAdapter extends RecyclerView.Adapter<ParkingHistoryAd
                 DocumentReference docRef = mDatabase.collection("parkingspaces").document("Naivas");
                 docRef.get().addOnSuccessListener(documentSnapshot -> {
                     ParkingSpace parkingSpace = documentSnapshot.toObject(ParkingSpace.class);
-                    int slot = Integer.parseInt(parkingHistory.get(holder.getLayoutPosition()).getId());
+                    int slot = parkingHistory.get(holder.getLayoutPosition()).getUserId();
                     assert parkingSpace != null;
                     SlotDetails slotDetails = parkingSpace.getSlots().get(slot - 1);
                     if (parkingSpace.getStatus() > 0) {
                         if (slotDetails.getOccupant() == null) {
                             changeDate(parkingHistory.get(holder.getLayoutPosition()));
                         } else {
-                            Toast.makeText(context, "Slot " + slot + "not available", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(context, "Slot " + slot + " not available", Toast.LENGTH_SHORT).show();
                         }
                     } else {
                         Toast.makeText(context, "No parking space available", Toast.LENGTH_SHORT).show();
@@ -201,43 +202,7 @@ public class ParkingHistoryAdapter extends RecyclerView.Adapter<ParkingHistoryAd
                 mProgressDialog.dismiss();
                 try {
                     if (response.isSuccessful()) {
-                        Random rand = new Random();
-                        String bookingId = String.format("%06d", rand.nextInt(999999));
-                        UserPackedSpace userPackedSpace = new UserPackedSpace();
-                        userPackedSpace.setCarParkBookingId(bookingId);
-                        userPackedSpace.setAddress(parkingHistoryModel.getLocation());
-                        userPackedSpace.setCheckIn(getFormattedDay(checkInDate) + ", " + getFormattedTime(checkInDate));
-                        userPackedSpace.setCheckOut(getFormattedDay(checkOutDate) + ", " + getFormattedTime(checkOutDate));
-                        userPackedSpace.setVehicleNo(parkingHistoryModel.getVehicleNo());
-                        userPackedSpace.setOwner(parkingHistoryModel.getOwner());
-                        userPackedSpace.setAmount(String.valueOf(payment));
-
-                        mDatabase.collection("parkingspaces").document(userID).collection("current")
-                                .add(userPackedSpace)
-                                .addOnSuccessListener(aVoid -> Log.d("R/B", "DocumentSnapshot successfully written!"))
-                                .addOnFailureListener((OnFailureListener) e -> Log.w("R/B", "Error writing document", e));
-                        mDatabase.collection("parkingspaces").document(userID).collection("history").document(parkingHistoryModel.getId())
-                                .delete()
-                                .addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        Log.d("CURRENT", "DocumentSnapshot successfully deleted!");
-                                    }
-                                })
-                                .addOnFailureListener(e -> Log.w("CURRENT", "Error deleting document", e));
-                        DocumentReference parkingSpace = mDatabase.collection("parkingspaces")
-                                .document("Naivas");
-                        parkingSpace.get().addOnSuccessListener(documentSnapshot -> {
-                            ParkingSpace parkingSpace1 = documentSnapshot.toObject(ParkingSpace.class);
-                            assert parkingSpace1 != null;
-                            int status = parkingSpace1.getStatus() - 1;
-                            parkingSpace
-                                    .update("status", status)
-                                    .addOnSuccessListener(aVoid -> Log.d("TAG", "DocumentSnapshot successfully updated!"))
-                                    .addOnFailureListener(e -> Log.w("TAG", "Error updating document", e));
-                        });
-                        Toast.makeText(context, "Re-book Successful", Toast.LENGTH_LONG).show();
-
+                        convert_to_current(parkingHistoryModel);
                     } else {
                         Toast.makeText(context, String.valueOf(response.raw()), Toast.LENGTH_SHORT).show();
                         Log.d("TAGElse", response.toString());
@@ -346,6 +311,67 @@ public class ParkingHistoryAdapter extends RecyclerView.Adapter<ParkingHistoryAd
     public String getFormattedTime(Calendar date) {
         SimpleDateFormat formatter = new SimpleDateFormat("HH:mm:ss");
         return formatter.format(date.getTime());
+    }
+
+    private void convert_to_current(ParkingHistoryModel parkingHistoryModel) {
+        Random rand = new Random();
+        String bookingId = String.format("%06d", rand.nextInt(999999));
+        UserPackedSpace userPackedSpace = new UserPackedSpace();
+        userPackedSpace.setCarParkBookingId(bookingId);
+        userPackedSpace.setUserId(parkingHistoryModel.getUserId());
+        userPackedSpace.setAddress(parkingHistoryModel.getLocation());
+        userPackedSpace.setCheckIn(getFormattedDay(checkInDate) + ", " + getFormattedTime(checkInDate));
+        userPackedSpace.setCheckOut(getFormattedDay(checkOutDate) + ", " + getFormattedTime(checkOutDate));
+        userPackedSpace.setVehicleNo(parkingHistoryModel.getVehicleNo());
+        userPackedSpace.setOwner(parkingHistoryModel.getOwner());
+        userPackedSpace.setAmount(String.valueOf(payment));
+
+        mDatabase.collection("parkingspaces").document(userID).collection("current")
+                .add(userPackedSpace)
+                .addOnSuccessListener(aVoid -> Log.d("R/B", "DocumentSnapshot successfully written!"))
+                .addOnFailureListener(e -> Log.w("R/B", "Error writing document", e));
+
+        mDatabase.collection("parkingspaces").document(userID).collection("history").document(parkingHistoryModel.getId())
+                .delete()
+                .addOnSuccessListener(aVoid -> Log.d("CURRENT", "DocumentSnapshot successfully deleted!"))
+                .addOnFailureListener(e -> Log.w("CURRENT", "Error deleting document", e));
+        updateSlots(parkingHistoryModel.getUserId());
+        Toast.makeText(context, "Re-book Successful", Toast.LENGTH_LONG).show();
+    }
+
+    private void updateSlots(int slot) {
+        DocumentReference parkingSpace = mDatabase.collection("parkingspaces")
+                .document("Naivas");
+        parkingSpace.get().addOnSuccessListener(documentSnapshot -> {
+            ParkingSpace parkingSpace1 = documentSnapshot.toObject(ParkingSpace.class);
+            assert parkingSpace1 != null;
+            int status = parkingSpace1.getStatus() - 1;
+            SlotDetails slotDetails = new SlotDetails();
+            slotDetails.setSlot(slot);
+            slotDetails.setOccupant(SharePreference.getINSTANCE(getApplicationContext()).getUser());
+            slotDetails.setCheckIn(getFormattedDay(checkInDate) + ", " + getFormattedTime(checkInDate));
+            slotDetails.setCheckOut(getFormattedDay(checkOutDate) + ", " + getFormattedTime(checkOutDate));
+            List<SlotDetails> slots = parkingSpace1.getSlots();
+            slots.remove(slot - 1);
+            slots.add(slot - 1, slotDetails);
+            parkingSpace1.setSlots(slots);
+            parkingSpace1.setStatus(status);
+            mDatabase.collection("parkingspaces")
+                    .document("Naivas")
+                    .set(parkingSpace1)
+                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                        @Override
+                        public void onSuccess(Void aVoid) {
+                            Log.d(TAG, "DocumentSnapshot successfully written!");
+                        }
+                    })
+                    .addOnFailureListener(new OnFailureListener() {
+                        @Override
+                        public void onFailure(@NonNull Exception e) {
+                            Log.w(TAG, "Error writing document", e);
+                        }
+                    });
+        });
     }
 
 

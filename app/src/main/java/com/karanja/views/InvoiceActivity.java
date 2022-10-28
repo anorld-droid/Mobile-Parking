@@ -1,28 +1,25 @@
 package com.karanja.views;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.content.Intent;
 import android.graphics.Bitmap;
-
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.karanja.R;
-import com.karanja.utils.SharePreference;
+import androidx.appcompat.app.AppCompatActivity;
+
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.MultiFormatWriter;
 import com.google.zxing.WriterException;
 import com.google.zxing.common.BitMatrix;
 import com.journeyapps.barcodescanner.BarcodeEncoder;
+import com.karanja.R;
+import com.karanja.utils.SharePreference;
 
-import java.util.Random;
 
-
-public class InvoiceActivity extends AppCompatActivity{
+public class InvoiceActivity extends AppCompatActivity {
 
     private ImageView qrImage;
     private Object BarcodeMatrix;
@@ -53,7 +50,6 @@ public class InvoiceActivity extends AppCompatActivity{
         address = findViewById(R.id.parking_slot);
 
 
-
         date_in.setText(SharePreference.getINSTANCE(getApplicationContext()).getINFormattedDay());
         date_out.setText(SharePreference.getINSTANCE(getApplicationContext()).getOutFormattedDay());
         time_in.setText(SharePreference.getINSTANCE(getApplicationContext()).getINFormattedTime());
@@ -66,9 +62,11 @@ public class InvoiceActivity extends AppCompatActivity{
 
         directionFrom = "20.344,34.34";
         directionTo = "20.5666,45.345";
+        SharePreference.getINSTANCE(getApplicationContext()).setPickedSlot("Tap to select");
+        SharePreference.getINSTANCE(this).setMainVehicleNumber("Tap to select");
     }
 
-    public void showQrCode(){
+    public void showQrCode() {
 
         MultiFormatWriter multiFormatWriter = new MultiFormatWriter();
         //final Bitmap bm = null;
@@ -76,7 +74,7 @@ public class InvoiceActivity extends AppCompatActivity{
         String barcodeNumber = "CDE-uyr-7209";//For testing
         //BarcodeMatrix barcodeNumber;
         try {
-           // bm = encod
+            // bm = encod
             BitMatrix bitMatrix = multiFormatWriter.encode(barcodeNumber, BarcodeFormat.QR_CODE, 200, 200);
             BarcodeEncoder barcodeEncoder = new BarcodeEncoder();
             Bitmap bitmap = barcodeEncoder.createBitmap(bitMatrix);
@@ -88,36 +86,36 @@ public class InvoiceActivity extends AppCompatActivity{
 
     }
 
-    public void encodeAsBitmap(){
+    public void encodeAsBitmap() {
 
     }
 
-    public void getDirection(View view){
-        Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse("http://maps.google.com/maps?saddr="+directionFrom+"&daddr="+directionTo));
+    public void getDirection(View view) {
+        Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse("http://maps.google.com/maps?saddr=" + directionFrom + "&daddr=" + directionTo));
         //Intent intent = new Intent(android.content.Intent.ACTION_VIEW, Uri.parse("http://maps.google.com/maps?saddr=20.344,34.34&daddr=20.5666,45.345"));
         startActivity(intent);
     }
 
-    private void setDirectionFrom(String directionFrom){
+    private void setDirectionFrom(String directionFrom) {
         this.directionFrom = directionFrom;
     }
 
-    private void setDirectionTo(String directionTo){
+    private void setDirectionTo(String directionTo) {
         this.directionTo = directionTo;
     }
 
-    private String getDirectionFrom(){
+    private String getDirectionFrom() {
         return directionFrom;
     }
 
-    private String getDirectionTO(){
+    private String getDirectionTO() {
         return directionTo;
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
-        SharePreference.getINSTANCE(getApplicationContext()).setPickedSlot("");
+
         Intent intent = new Intent(InvoiceActivity.this, HomeActivity.class);
         startActivity(intent);
         finish();

@@ -15,6 +15,7 @@ public class ParkingHistoryModel {
     private String checkOut;
     private String owner;
     private String id;
+    private int userId;
 
 
     public ParkingHistoryModel() {
@@ -108,5 +109,13 @@ public class ParkingHistoryModel {
 
     public void setId(String id) {
         this.id = id;
+    }
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
     }
 }

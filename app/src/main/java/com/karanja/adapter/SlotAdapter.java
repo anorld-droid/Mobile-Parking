@@ -18,13 +18,13 @@ import com.karanja.views.ScheduleActivity;
 
 import java.util.List;
 
-public class SlotAdapter  extends RecyclerView.Adapter<SlotAdapter.CustomViewHolder> {
+public class SlotAdapter extends RecyclerView.Adapter<SlotAdapter.CustomViewHolder> {
     private Context context;
     private List<SlotDetails> slots;
 
     public SlotAdapter(Context context, List<SlotDetails> slots) {
         this.context = context;
-        this.slots  = slots;
+        this.slots = slots;
     }
 
 
@@ -55,18 +55,20 @@ public class SlotAdapter  extends RecyclerView.Adapter<SlotAdapter.CustomViewHol
     @Override
     public void onBindViewHolder(SlotAdapter.CustomViewHolder holder, final int position) {
 
-        holder.mSlotNumber.setText(String.valueOf("SLOT " +  slots.get(position).getSlot()));
+        holder.mSlotNumber.setText(String.valueOf("SLOT " + slots.get(position).getSlot()));
         holder.mStatus.setText(slots.get(position).getOccupant() == null || slots.get(position).getOccupant().isEmpty() ? "OPEN" : "OCCUPIED");
-        if (slots.get(position).getOccupant() == null || slots.get(position).getOccupant().isEmpty()) {
-            holder.single_slot.setOnClickListener(view -> {
+
+        holder.single_slot.setOnClickListener(view -> {
+            if (slots.get(position).getOccupant() == null || slots.get(position).getOccupant().isEmpty()) {
                 SharePreference.getINSTANCE(context).setPickedSlot(String.valueOf("SLOT " + slots.get(holder.getLayoutPosition()).getSlot()));
                 Intent i = new Intent(context, ScheduleActivity.class);
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
                 context.startActivity(i);
-            });
-        }else {
-            Toast.makeText(context, "SLOT already occupied", Toast.LENGTH_SHORT).show();
-        }
+            } else {
+                Toast.makeText(context, "SLOT already occupied", Toast.LENGTH_SHORT).show();
+            }
+        });
+
     }
 
     @Override

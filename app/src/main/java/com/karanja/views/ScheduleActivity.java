@@ -240,38 +240,30 @@ public class ScheduleActivity extends AppCompatActivity {
         recyclerView.setAdapter(myVehicleAdapter);
         String userID = SharePreference.getINSTANCE(getApplicationContext()).getUser();
         Task<QuerySnapshot> collectionRef = db.collection("vehicles").document(userID).collection("myvehicles").get();
-        collectionRef.addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
-            @Override
-            public void onComplete(@NonNull Task<QuerySnapshot> task) {
-                if (task.isSuccessful()) {
-                    for (QueryDocumentSnapshot document : task.getResult()) {
-                        new_text.setVisibility(View.INVISIBLE);
-                        vehicleList.add(document.toObject(Vehicle.class));
-                        myVehicleAdapter.notifyDataSetChanged();
-                        if (vehicleList.isEmpty()) {
-                            new_text.setVisibility(View.VISIBLE);
-                        }
-                        progressBar.setVisibility(View.GONE);
-                        Log.d("TAG", document.getId() + " => " + document.toObject(Vehicle.class));
+        collectionRef.addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    new_text.setVisibility(View.INVISIBLE);
+                    vehicleList.add(document.toObject(Vehicle.class));
+                    myVehicleAdapter.notifyDataSetChanged();
+                    if (vehicleList.isEmpty()) {
+                        new_text.setVisibility(View.VISIBLE);
                     }
-                } else {
-                    Toast.makeText(getApplicationContext(), "Failed to retrieve items", Toast.LENGTH_LONG).show();
-                    Log.d("TAG", "Error getting documents: ", task.getException());
                     progressBar.setVisibility(View.GONE);
-
+                    Log.d("TAG", document.getId() + " => " + document.toObject(Vehicle.class));
                 }
+            } else {
+                Toast.makeText(getApplicationContext(), "Failed to retrieve items", Toast.LENGTH_LONG).show();
+                Log.d("TAG", "Error getting documents: ", task.getException());
+                progressBar.setVisibility(View.GONE);
+
             }
         });
         myDialog.setView(customView);
         final AlertDialog dialog = myDialog.create();
         dialog.show();
         dialog.setCanceledOnTouchOutside(false);
-        single_vehicle.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-            }
-        });
+        single_vehicle.setOnClickListener(view -> dialog.dismiss());
     }
 
     private void showParkingSlotAlert() {
@@ -303,29 +295,21 @@ public class ScheduleActivity extends AppCompatActivity {
         recyclerView.setAdapter(mySlotAdapter);
         DocumentReference docRef = db.collection("parkingspaces").document("Naivas");
         progressBar.setVisibility(View.VISIBLE);
-        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                ParkingSpace parkingSpace = documentSnapshot.toObject(ParkingSpace.class);
-                new_text.setVisibility(View.INVISIBLE);
-                assert parkingSpace != null;
-                slotList.addAll(parkingSpace.getSlots());
-                mySlotAdapter.notifyDataSetChanged();
-                if (slotList.isEmpty()) {
-                    new_text.setVisibility(View.VISIBLE);
-                }
-                progressBar.setVisibility(View.GONE);
+        docRef.get().addOnSuccessListener(documentSnapshot -> {
+            ParkingSpace parkingSpace = documentSnapshot.toObject(ParkingSpace.class);
+            new_text.setVisibility(View.INVISIBLE);
+            assert parkingSpace != null;
+            slotList.addAll(parkingSpace.getSlots());
+            mySlotAdapter.notifyDataSetChanged();
+            if (slotList.isEmpty()) {
+                new_text.setVisibility(View.VISIBLE);
             }
+            progressBar.setVisibility(View.GONE);
         });
         myDialog.setView(customView);
         final AlertDialog dialog = myDialog.create();
         dialog.show();
         dialog.setCanceledOnTouchOutside(false);
-        single_slot.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-            }
-        });
+        single_slot.setOnClickListener(view -> dialog.dismiss());
     }
 }

@@ -152,6 +152,7 @@ public class CurrentSpaceAdapter extends RecyclerView.Adapter<CurrentSpaceAdapte
 
             phm.setParkingHistoryDate(dateTo);
             phm.setParkingHistoryTime(timeTo);
+            phm.setUserId(userPackedSpaces.get(position).getUserId());
             phm.setAmount(userPackedSpaces.get(position).getAmount());
             phm.setLocation(userPackedSpaces.get(position).getAddress());
             phm.setQrCode(qrCode[index]);
