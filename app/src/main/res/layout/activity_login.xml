@@ -36,6 +36,18 @@
         android:padding="10dp"
         />
 
+    <Switch
+        android:id="@+id/admin_switch_login"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:checked="false"
+        android:nextFocusForward="@+id/productPageET"
+        android:singleLine="true"
+        android:text="@string/admin"
+        android:textColor="@android:color/black"
+        android:textSize="20sp"
+        tools:ignore="UseSwitchCompatOrMaterialXml" />
 
     <Button
         android:id="@+id/login"
