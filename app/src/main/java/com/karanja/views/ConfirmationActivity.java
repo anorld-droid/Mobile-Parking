@@ -97,8 +97,9 @@ public class ConfirmationActivity extends BaseActivity {
         parking_slot.setText(SharePreference.getINSTANCE(getApplicationContext()).getPickedSlot());
         try {
             String[] dur = SharePreference.getINSTANCE(getApplicationContext()).getDuration().split(" ");
-            long time_difference = Integer.parseInt(dur[0]) + (Integer.parseInt(dur[2]) / 60);
-            payment = time_difference * 50;
+            long hour = Integer.parseInt(dur[0]) * 50L;
+            long minutes = Integer.parseInt(dur[2]) * 50L;
+            payment = hour + minutes / 60;
             payable_amount.setText(String.valueOf("Ksh. " + payment));
         } catch (Exception e) {
             Log.d("TAG", "" + e);
@@ -117,7 +118,13 @@ public class ConfirmationActivity extends BaseActivity {
 
         getAccessToken();
         mDatabase = FirebaseFirestore.getInstance();
-        confirm_button.setOnClickListener(view -> confirmBooking());
+        confirm_button.setOnClickListener(view -> {
+            if (payment < 25) {
+                Toast.makeText(getApplicationContext(), "Only bookings above 30mins are allowed", Toast.LENGTH_SHORT).show();
+            } else {
+                confirmBooking();
+            }
+        });
     }
 
     public void getAccessToken() {
@@ -206,7 +213,7 @@ public class ConfirmationActivity extends BaseActivity {
             slotDetails.setCheckIn(checkIn);
             slotDetails.setCheckOut(checkOut);
             List<SlotDetails> slots = parkingSpace1.getSlots();
-            slots.remove(slot-1);
+            slots.remove(slot - 1);
             slots.add(slot - 1, slotDetails);
             parkingSpace1.setSlots(slots);
             parkingSpace1.setStatus(status);
