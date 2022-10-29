@@ -71,6 +71,7 @@
     <string name="phone_number">M-Pesa phone number 07..</string>
     <string name="check_out">Check Out</string>
     <string name="admin">Administrator</string>
+    <string name="email">Email</string>
 
 
 </resources>

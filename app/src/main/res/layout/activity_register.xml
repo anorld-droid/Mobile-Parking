@@ -44,6 +44,17 @@
         android:hint="Username"
         android:inputType="text"
         android:padding="10dp" />
+    <EditText
+        android:id="@+id/email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginEnd="20dp"
+        android:background="@drawable/input_text"
+        android:hint="@string/email"
+        android:inputType="textEmailAddress"
+        android:padding="10dp" />
 
     <EditText
         android:id="@+id/phone_number"
@@ -82,7 +93,7 @@
         android:padding="10dp" />
 
     <Switch
-        android:id="@+id/admin_switch"
+        android:id="@+id/admin_switch_reg"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
