@@ -1,40 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Register.LoginActivity"
+    android:gravity="center"
     android:orientation="vertical"
-    android:gravity="center">
+    tools:context=".Register.LoginActivity">
 
     <EditText
         android:id="@+id/username"
-        android:inputType="text"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Username"
-        android:background="@drawable/input_text"
-
         android:layout_marginStart="20dp"
-
         android:layout_marginEnd="20dp"
-        android:padding="10dp"
-        />
+        android:background="@drawable/input_text"
+        android:hint="Username"
+        android:inputType="text"
+        android:padding="10dp" />
+
+    <EditText
+        android:id="@+id/email_edt"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="16dp"
+        android:layout_marginEnd="20dp"
+        android:background="@drawable/input_text"
+        android:hint="@string/email"
+        android:inputType="textEmailAddress"
+        android:padding="10dp" />
+
     <EditText
         android:id="@+id/password"
-        android:inputType="textPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Password"
-        android:layout_marginTop="10dp"
         android:layout_marginStart="20dp"
+        android:layout_marginTop="16dp"
         android:layout_marginEnd="20dp"
-
         android:background="@drawable/input_text"
-
-        android:padding="10dp"
-        />
+        android:hint="Password"
+        android:inputType="textPassword"
+        android:padding="10dp" />
 
     <Switch
         android:id="@+id/admin_switch_login"
@@ -53,19 +59,20 @@
         android:id="@+id/login"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Login"
-        android:background="@drawable/button_background"
-        android:layout_marginTop="25dp"
         android:layout_marginStart="20dp"
+        android:layout_marginTop="25dp"
         android:layout_marginEnd="20dp"
+        android:background="@drawable/button_background"
+        android:text="Login"
 
         />
+
     <LinearLayout
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
         android:layout_gravity="center"
-        android:layout_marginTop="10dp">
+        android:layout_marginTop="10dp"
+        android:orientation="horizontal">
 
         <TextView
 
@@ -74,17 +81,16 @@
             android:text="Dont have an account?"
 
             />
+
         <TextView
             android:id="@+id/registerNowBtn"
-            android:layout_marginStart="5dp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textStyle="bold"
-
+            android:layout_marginStart="5dp"
             android:text="Register now"
-            />
-    </LinearLayout>
 
+            android:textStyle="bold" />
+    </LinearLayout>
 
 
 </LinearLayout>

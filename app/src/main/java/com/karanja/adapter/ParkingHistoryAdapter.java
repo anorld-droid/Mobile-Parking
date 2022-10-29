@@ -335,11 +335,11 @@ public class ParkingHistoryAdapter extends RecyclerView.Adapter<ParkingHistoryAd
                 .delete()
                 .addOnSuccessListener(aVoid -> Log.d("CURRENT", "DocumentSnapshot successfully deleted!"))
                 .addOnFailureListener(e -> Log.w("CURRENT", "Error deleting document", e));
-        updateSlots(parkingHistoryModel.getUserId());
+        updateSlots(parkingHistoryModel.getUserId(), bookingId);
         Toast.makeText(context, "Re-book Successful", Toast.LENGTH_LONG).show();
     }
 
-    private void updateSlots(int slot) {
+    private void updateSlots(int slot, String bookingID) {
         DocumentReference parkingSpace = mDatabase.collection("parkingspaces")
                 .document("Naivas");
         parkingSpace.get().addOnSuccessListener(documentSnapshot -> {
@@ -347,6 +347,7 @@ public class ParkingHistoryAdapter extends RecyclerView.Adapter<ParkingHistoryAd
             assert parkingSpace1 != null;
             int status = parkingSpace1.getStatus() - 1;
             SlotDetails slotDetails = new SlotDetails();
+            slotDetails.setId(bookingID);
             slotDetails.setSlot(slot);
             slotDetails.setOccupant(SharePreference.getINSTANCE(getApplicationContext()).getUser());
             slotDetails.setCheckIn(getFormattedDay(checkInDate) + ", " + getFormattedTime(checkInDate));

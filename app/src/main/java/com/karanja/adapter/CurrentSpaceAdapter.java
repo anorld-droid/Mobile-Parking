@@ -183,6 +183,7 @@ public class CurrentSpaceAdapter extends RecyclerView.Adapter<CurrentSpaceAdapte
             assert parkingSpace1 != null;
             int status = parkingSpace1.getStatus() + 1;
             SlotDetails slotDetails = new SlotDetails();
+            slotDetails.setId(null);
             slotDetails.setSlot(slot);
             slotDetails.setOccupant(null);
             slotDetails.setCheckIn(null);

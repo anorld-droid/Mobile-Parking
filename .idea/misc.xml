@@ -6,6 +6,7 @@
         <entry key="app/src/main/res/drawable/ic_car_button.xml" value="0.3045" />
         <entry key="app/src/main/res/drawable/input_text.xml" value="0.2975" />
         <entry key="app/src/main/res/layout-v28/fragment_payment_methods.xml" value="0.17274569402228976" />
+        <entry key="app/src/main/res/layout/activity_admin_home.xml" value="0.22" />
         <entry key="app/src/main/res/layout/activity_confirmation.xml" value="0.18072916666666666" />
         <entry key="app/src/main/res/layout/activity_enter_name.xml" value="0.35520833333333335" />
         <entry key="app/src/main/res/layout/activity_get_all_car_details.xml" value="0.18072916666666666" />
@@ -18,6 +19,8 @@
         <entry key="app/src/main/res/layout/activity_register.xml" value="0.30057803468208094" />
         <entry key="app/src/main/res/layout/activity_schedule.xml" value="0.22" />
         <entry key="app/src/main/res/layout/activity_settings.xml" value="0.35520833333333335" />
+        <entry key="app/src/main/res/layout/activity_vehicle.xml" value="0.35520833333333335" />
+        <entry key="app/src/main/res/layout/admin_current_space_item.xml" value="0.3541666666666667" />
         <entry key="app/src/main/res/layout/change_date_dialog.xml" value="0.22" />
         <entry key="app/src/main/res/layout/content_my_vehicle.xml" value="0.35520833333333335" />
         <entry key="app/src/main/res/layout/current_space.xml" value="0.22" />

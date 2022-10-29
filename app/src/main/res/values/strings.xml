@@ -72,6 +72,11 @@
     <string name="check_out">Check Out</string>
     <string name="admin">Administrator</string>
     <string name="email">Email</string>
+    <string name="generate_report">Generate Report</string>
+    <string name="slot_number">SLOT 1</string>
+    <string name="occupant">Paul Karanja</string>
+    <string name="cancel_booking">Cancel Booking</string>
+    <string name="no_occupied_slots">No Occupied Slots</string>
 
 
 </resources>

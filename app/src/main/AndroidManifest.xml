@@ -17,7 +17,12 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-
+        <activity
+            android:name=".views.admin.ReportsActivity"
+            android:exported="false" />
+        <activity
+            android:name=".views.admin.AdminHomeActivity"
+            android:exported="false" />
         <activity
             android:name=".Register.RegisterActivity"
             android:exported="true" />
@@ -48,7 +53,6 @@
             android:name=".views.MyParkingSpace"
             android:parentActivityName=".views.HomeActivity" />
         <activity android:name=".IgnoreForApiTest.ApiTestActivity" />
-
         <activity android:name=".views.Map" />
         <activity
             android:name=".views.MapsActivity"
@@ -65,7 +69,6 @@
         <activity
             android:name=".views.ConfirmationActivity"
             android:parentActivityName=".views.ScheduleActivity" />
-
         <activity
             android:name=".views.OnboardingActivity"
             android:theme="@style/AppTheme" />
@@ -93,7 +96,6 @@
         <activity
             android:name=".views.DetailsActivity"
             android:parentActivityName=".views.HomeActivity" />
-
         <activity
             android:name=".views.ScheduleActivity"
             android:parentActivityName=".views.HomeActivity" />
@@ -101,7 +103,6 @@
             android:name=".views.ProfileActivity"
             android:label="Edit Profile"
             android:parentActivityName=".views.SettingsActivity" />
-
         <activity
             android:name=".views.CarDetailsActiviy"
             android:parentActivityName=".views.ScheduleActivity" />

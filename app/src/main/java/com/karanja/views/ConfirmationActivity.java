@@ -192,7 +192,7 @@ public class ConfirmationActivity extends BaseActivity {
                     .add(userPackedSpace)
                     .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully written!"))
                     .addOnFailureListener(e -> Log.w(TAG, "Error writing document", e));
-            updateSlots(slot);
+            updateSlots(slot, bookingId);
 
             Intent intent = new Intent(ConfirmationActivity.this, InvoiceActivity.class);
             startActivity(intent);
@@ -200,7 +200,7 @@ public class ConfirmationActivity extends BaseActivity {
         });
     }
 
-    private void updateSlots(int slot) {
+    private void updateSlots(int slot, String id) {
         DocumentReference parkingSpace = mDatabase.collection("parkingspaces")
                 .document("Naivas");
         parkingSpace.get().addOnSuccessListener(documentSnapshot -> {
@@ -208,6 +208,7 @@ public class ConfirmationActivity extends BaseActivity {
             assert parkingSpace1 != null;
             int status = parkingSpace1.getStatus() - 1;
             SlotDetails slotDetails = new SlotDetails();
+            slotDetails.setId(id);
             slotDetails.setSlot(slot);
             slotDetails.setOccupant(SharePreference.getINSTANCE(getApplicationContext()).getUser());
             slotDetails.setCheckIn(checkIn);
