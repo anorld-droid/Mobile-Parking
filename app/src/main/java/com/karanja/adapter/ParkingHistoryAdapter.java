@@ -29,12 +29,13 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentReference;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.karanja.Model.AccessToken;
-import com.karanja.Model.Park.ParkingSpace;
+import com.karanja.Model.Booking.BookingSchedule;
+import com.karanja.Model.Park.Report;
 import com.karanja.Model.Park.SlotDetails;
 import com.karanja.Model.Park.UserPackedSpace;
 import com.karanja.Model.STKPush;
@@ -43,10 +44,13 @@ import com.karanja.R;
 import com.karanja.utils.DarajaApiClient;
 import com.karanja.utils.SharePreference;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Random;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -121,24 +125,12 @@ public class ParkingHistoryAdapter extends RecyclerView.Adapter<ParkingHistoryAd
 
         holder.re_book.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                DocumentReference docRef = mDatabase.collection("parkingspaces").document("Naivas");
-                docRef.get().addOnSuccessListener(documentSnapshot -> {
-                    ParkingSpace parkingSpace = documentSnapshot.toObject(ParkingSpace.class);
-                    int slot = parkingHistory.get(holder.getLayoutPosition()).getUserId();
-                    assert parkingSpace != null;
-                    SlotDetails slotDetails = parkingSpace.getSlots().get(slot - 1);
-                    if (parkingSpace.getStatus() > 0) {
-                        if (slotDetails.getOccupant() == null) {
-                            changeDate(parkingHistory.get(holder.getLayoutPosition()));
-                        } else {
-                            Toast.makeText(context, "Slot " + slot + " not available", Toast.LENGTH_SHORT).show();
-                        }
-                    } else {
-                        Toast.makeText(context, "No parking space available", Toast.LENGTH_SHORT).show();
-                    }
-                });
+
+                    changeDate(parkingHistory.get(holder.getLayoutPosition()));
+
             }
         });
+
     }
 
 
@@ -249,7 +241,9 @@ public class ParkingHistoryAdapter extends RecyclerView.Adapter<ParkingHistoryAd
             @Override
             public void onClick(View v) {
 //                Toast.makeText(context, phoneNumber.getText().toString(), Toast.LENGTH_SHORT).show();
-                performSTKPush(phoneNumber.getText().toString(), parkingHistory);
+                if (validateBooking()) {
+                    performSTKPush(phoneNumber.getText().toString(), parkingHistory);
+                }
                 dialog.dismiss();
             }
         });
@@ -326,6 +320,13 @@ public class ParkingHistoryAdapter extends RecyclerView.Adapter<ParkingHistoryAd
         userPackedSpace.setOwner(parkingHistoryModel.getOwner());
         userPackedSpace.setAmount(String.valueOf(payment));
 
+        Report report = new Report();
+        report.setSlot(parkingHistoryModel.getUserId());
+        report.setPayment(payment);
+        report.setOccupant(userID);
+        report.setCheckIn(getFormattedDay(checkInDate) + ", " + getFormattedTime(checkInDate));
+        report.setCheckOut(getFormattedDay(checkOutDate) + ", " + getFormattedTime(checkOutDate));
+        saveReport(report);
         mDatabase.collection("parkingspaces").document(userID).collection("current")
                 .add(userPackedSpace)
                 .addOnSuccessListener(aVoid -> Log.d("R/B", "DocumentSnapshot successfully written!"))
@@ -335,45 +336,70 @@ public class ParkingHistoryAdapter extends RecyclerView.Adapter<ParkingHistoryAd
                 .delete()
                 .addOnSuccessListener(aVoid -> Log.d("CURRENT", "DocumentSnapshot successfully deleted!"))
                 .addOnFailureListener(e -> Log.w("CURRENT", "Error deleting document", e));
-        updateSlots(parkingHistoryModel.getUserId(), bookingId);
+        addBooking(parkingHistoryModel.getUserId(), bookingId);
         Toast.makeText(context, "Re-book Successful", Toast.LENGTH_LONG).show();
     }
 
-    private void updateSlots(int slot, String bookingID) {
-        DocumentReference parkingSpace = mDatabase.collection("parkingspaces")
-                .document("Naivas");
-        parkingSpace.get().addOnSuccessListener(documentSnapshot -> {
-            ParkingSpace parkingSpace1 = documentSnapshot.toObject(ParkingSpace.class);
-            assert parkingSpace1 != null;
-            int status = parkingSpace1.getStatus() - 1;
-            SlotDetails slotDetails = new SlotDetails();
-            slotDetails.setId(bookingID);
-            slotDetails.setSlot(slot);
-            slotDetails.setOccupant(SharePreference.getINSTANCE(getApplicationContext()).getUser());
-            slotDetails.setCheckIn(getFormattedDay(checkInDate) + ", " + getFormattedTime(checkInDate));
-            slotDetails.setCheckOut(getFormattedDay(checkOutDate) + ", " + getFormattedTime(checkOutDate));
-            List<SlotDetails> slots = parkingSpace1.getSlots();
-            slots.remove(slot - 1);
-            slots.add(slot - 1, slotDetails);
-            parkingSpace1.setSlots(slots);
-            parkingSpace1.setStatus(status);
-            mDatabase.collection("parkingspaces")
-                    .document("Naivas")
-                    .set(parkingSpace1)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "DocumentSnapshot successfully written!");
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w(TAG, "Error writing document", e);
-                        }
-                    });
-        });
+
+    public void addBooking(int slot, String bookingID) {
+        SlotDetails slotDetails = new SlotDetails();
+        slotDetails.setId(bookingID);
+        slotDetails.setSlot(slot);
+        slotDetails.setOccupant(SharePreference.getINSTANCE(getApplicationContext()).getUser());
+        slotDetails.setCheckIn(getFormattedDay(checkInDate) + ", " + getFormattedTime(checkInDate));
+        slotDetails.setCheckOut(getFormattedDay(checkOutDate) + ", " + getFormattedTime(checkOutDate));
+        mDatabase.collection("bookings").add(slotDetails).addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully written!"))
+                .addOnFailureListener(e -> Log.w(TAG, "Error writing document", e));
     }
 
+    private boolean validateBooking() {
+         AtomicBoolean valid = new AtomicBoolean(false);
+        Task<QuerySnapshot> collectionRef = mDatabase.collection("schedule").get();
+        collectionRef.addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    if (document.exists()) {
+                        BookingSchedule bookingSchedule = document.toObject(BookingSchedule.class);
+                        if (checkDates(bookingSchedule.getCheckIn(), bookingSchedule.getCheckOut())) {
+                            Toast.makeText(getApplicationContext(), "Booking time unavailable", Toast.LENGTH_LONG).show();
+                            valid.set(false);
+                            break;
+                        } else {
+                            valid.set(true);
+                        }
+                    }else{
+                        valid.set(false);
+                    }
+                }
+            } else {
+                Toast.makeText(getApplicationContext(), "Failed to retrieve items, check your internet connection and try again.", Toast.LENGTH_LONG).show();
+                Log.d("TAG", "Error getting documents: ", task.getException());
+            }
+        });
+        return valid.get();
+    }
+
+    private boolean checkDates(String exCheckIn, String exCheckOut) {
+        SimpleDateFormat formatter = new SimpleDateFormat("EEE, dd MMM, HH:mm:ss");
+        try {
+            Date exDateIn = formatter.parse(exCheckIn);
+            Date exDateOut = formatter.parse(exCheckOut);
+            if (checkInDate.after(exDateOut) || checkOutDate.before(exDateIn)) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    private void saveReport(Report report) {
+        mDatabase.collection("reports")
+                .add(report)
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully written!"))
+                .addOnFailureListener(e -> Log.w(TAG, "Error writing document", e));
+    }
 
 }

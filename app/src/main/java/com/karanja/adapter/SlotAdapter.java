@@ -59,7 +59,7 @@ public class SlotAdapter extends RecyclerView.Adapter<SlotAdapter.CustomViewHold
         holder.mStatus.setText(slots.get(position).getOccupant() == null || slots.get(position).getOccupant().isEmpty() ? "OPEN" : "OCCUPIED");
 
         holder.single_slot.setOnClickListener(view -> {
-            if (slots.get(position).getOccupant() == null || slots.get(position).getOccupant().isEmpty()) {
+            if (slots.get(position).getOccupant() == null) {
                 SharePreference.getINSTANCE(context).setPickedSlot(String.valueOf("SLOT " + slots.get(holder.getLayoutPosition()).getSlot()));
                 Intent i = new Intent(context, ScheduleActivity.class);
                 i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
@@ -75,4 +75,6 @@ public class SlotAdapter extends RecyclerView.Adapter<SlotAdapter.CustomViewHold
     public int getItemCount() {
         return slots.size();
     }
+
+
 }

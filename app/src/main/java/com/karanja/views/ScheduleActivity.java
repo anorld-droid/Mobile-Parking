@@ -1,14 +1,5 @@
 package com.karanja.views;
 
-import static com.facebook.FacebookSdk.getApplicationContext;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.cardview.widget.CardView;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.app.DatePickerDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
@@ -24,17 +15,18 @@ import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.cardview.widget.CardView;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.karanja.Api.ParkingApi;
-import com.karanja.Api.Responses.BaseDataResponse;
-import com.karanja.Api.RetrofitClient;
+import com.karanja.Model.Booking.BookingSchedule;
 import com.karanja.Model.Park.ParkingSpace;
 import com.karanja.Model.Park.SlotDetails;
 import com.karanja.Model.Vehicle;
@@ -42,16 +34,14 @@ import com.karanja.R;
 import com.karanja.adapter.BookingVehicleAdapter;
 import com.karanja.adapter.SlotAdapter;
 import com.karanja.utils.SharePreference;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 
 public class ScheduleActivity extends AppCompatActivity {
@@ -117,9 +107,11 @@ public class ScheduleActivity extends AppCompatActivity {
         } else if (tvCheckOut.getText().toString().isEmpty()) {
             Toast.makeText(getApplicationContext(), "Kindly set a Check-Out time first", Toast.LENGTH_SHORT).show();
         } else {
-            Intent intent = new Intent(ScheduleActivity.this, ConfirmationActivity.class);
-            startActivity(intent);
-            finish();
+            if (validateBooking()) {
+                Intent intent = new Intent(ScheduleActivity.this, ConfirmationActivity.class);
+                startActivity(intent);
+                finish();
+            }
         }
 
     }
@@ -298,7 +290,6 @@ public class ScheduleActivity extends AppCompatActivity {
         docRef.get().addOnSuccessListener(documentSnapshot -> {
             ParkingSpace parkingSpace = documentSnapshot.toObject(ParkingSpace.class);
             new_text.setVisibility(View.INVISIBLE);
-            assert parkingSpace != null;
             slotList.addAll(parkingSpace.getSlots());
             mySlotAdapter.notifyDataSetChanged();
             if (slotList.isEmpty()) {
@@ -306,10 +297,55 @@ public class ScheduleActivity extends AppCompatActivity {
             }
             progressBar.setVisibility(View.GONE);
         });
+
         myDialog.setView(customView);
         final AlertDialog dialog = myDialog.create();
         dialog.show();
         dialog.setCanceledOnTouchOutside(false);
         single_slot.setOnClickListener(view -> dialog.dismiss());
     }
+
+
+    private boolean validateBooking() {
+
+        Task<QuerySnapshot> collectionRef = db.collection("schedule").get();
+        collectionRef.addOnCompleteListener(task -> {
+            if (task.isSuccessful()) {
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    if (document.exists()) {
+                        BookingSchedule bookingSchedule = document.toObject(BookingSchedule.class);
+                        if (checkDates(bookingSchedule.getCheckIn(), bookingSchedule.getCheckOut())) {
+                            Toast.makeText(getApplicationContext(), "Booking time unavailable", Toast.LENGTH_LONG).show();
+                            break;
+                        } else {
+
+                        }
+                    }else {
+
+                    }
+                }
+            } else {
+                Toast.makeText(getApplicationContext(), "Failed to retrieve items, check your internet connection and try again.", Toast.LENGTH_LONG).show();
+                Log.d("TAG", "Error getting documents: ", task.getException());
+            }
+        });
+        return true;
+    }
+
+    private boolean checkDates(String exCheckIn, String exCheckOut) {
+        SimpleDateFormat formatter = new SimpleDateFormat("EEE, dd MMM, HH:mm:ss");
+                try {
+            Date exDateIn = formatter.parse(exCheckIn);
+            Date exDateOut = formatter.parse(exCheckOut);
+            if (checkInDate.after(exDateOut) || checkOutDate.before(exDateIn)) {
+                return true;
+            } else {
+                return false;
+            }
+        } catch (ParseException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
 }

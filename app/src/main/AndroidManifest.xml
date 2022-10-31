@@ -19,7 +19,7 @@
         tools:ignore="GoogleAppIndexingWarning">
         <activity
             android:name=".views.admin.ReportsActivity"
-            android:exported="false" />
+            android:parentActivityName=".views.admin.AdminHomeActivity"/>
         <activity
             android:name=".views.admin.AdminHomeActivity"
             android:exported="false" />
@@ -78,11 +78,7 @@
         <activity
             android:name=".views.ParkLocation"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".views.AddCardActivity"
-            android:label="Add Card"
-            android:parentActivityName=".views.HomeActivity"
-            android:theme="@style/AppTheme.NoActionBar" />
+
         <activity
             android:name=".views.HomeActivity"
             android:label="Home"
@@ -93,9 +89,6 @@
         <activity
             android:name=".views.InvoiceActivity"
             android:parentActivityName=".views.ConfirmationActivity" />
-        <activity
-            android:name=".views.DetailsActivity"
-            android:parentActivityName=".views.HomeActivity" />
         <activity
             android:name=".views.ScheduleActivity"
             android:parentActivityName=".views.HomeActivity" />

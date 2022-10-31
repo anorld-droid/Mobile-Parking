@@ -77,6 +77,9 @@
     <string name="occupant">Paul Karanja</string>
     <string name="cancel_booking">Cancel Booking</string>
     <string name="no_occupied_slots">No Occupied Slots</string>
+    <string name="payment">Ksh.200</string>
+    <string name="payment_txt">Payment</string>
+    <string name="no_reports">No Reports Available</string>
 
 
 </resources>

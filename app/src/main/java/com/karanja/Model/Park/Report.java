@@ -3,11 +3,10 @@ package com.karanja.Model.Park;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
-
-public class SlotDetails {
-    @SerializedName("id")
+public class Report {
+    @SerializedName("payment")
     @Expose
-    private String id;
+    private long payment;
     @SerializedName("slot")
     @Expose
     private int slot;
@@ -54,12 +53,11 @@ public class SlotDetails {
         return checkOut;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public void setPayment(long payment) {
+        this.payment = payment;
     }
 
-    public String getId() {
-        return id;
+    public long getPayment() {
+        return payment;
     }
-
 }

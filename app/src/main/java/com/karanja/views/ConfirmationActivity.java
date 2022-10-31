@@ -25,13 +25,10 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.karanja.Model.AccessToken;
 import com.karanja.Model.Booking.BookingSchedule;
-import com.karanja.Model.Park.ParkingSpace;
+import com.karanja.Model.Park.Report;
 import com.karanja.Model.Park.SlotDetails;
 import com.karanja.Model.Park.UserPackedSpace;
 import com.karanja.Model.STKPush;
@@ -39,7 +36,6 @@ import com.karanja.R;
 import com.karanja.utils.DarajaApiClient;
 import com.karanja.utils.SharePreference;
 
-import java.util.List;
 import java.util.Random;
 
 import retrofit2.Call;
@@ -51,7 +47,6 @@ public class ConfirmationActivity extends BaseActivity {
     private TextView park, address, date_in, date_out, time_in, time_out, vehicle_name, vehicle_number, payable_amount, parking_slot;
     private EditText phoneNumber;
     private final String PREFERENCE_FILE_KEY = "location_pref";
-    private BookingSchedule bookingSchedule;
     private Button confirm_button;
     private ProgressBar progressBar;
     private int car_park_id;
@@ -70,7 +65,6 @@ public class ConfirmationActivity extends BaseActivity {
         getSupportActionBar().setTitle("Confirmation");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        bookingSchedule = new BookingSchedule();
 
         park = findViewById(R.id.park_name);
         address = findViewById(R.id.park_address);
@@ -133,8 +127,8 @@ public class ConfirmationActivity extends BaseActivity {
             @Override
             public void onResponse(@NonNull Call<AccessToken> call, @NonNull Response<AccessToken> response) {
                 if (response.isSuccessful()) {
+                    assert response.body() != null;
                     mApiClient.setAuthToken(response.body().accessToken);
-//                    showToast("Access " + response.code());
                 }
             }
 
@@ -192,48 +186,43 @@ public class ConfirmationActivity extends BaseActivity {
                     .add(userPackedSpace)
                     .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully written!"))
                     .addOnFailureListener(e -> Log.w(TAG, "Error writing document", e));
-            updateSlots(slot, bookingId);
-
+            addBooking(slot, bookingId);
+            addSchedule();
+            Report report = new Report();
+            report.setSlot(slot);
+            report.setPayment(payment);
+            report.setOccupant(userID);
+            report.setCheckIn(checkIn);
+            report.setCheckOut(checkOut);
+            saveReport(report);
             Intent intent = new Intent(ConfirmationActivity.this, InvoiceActivity.class);
             startActivity(intent);
             finish();
         });
     }
 
-    private void updateSlots(int slot, String id) {
-        DocumentReference parkingSpace = mDatabase.collection("parkingspaces")
-                .document("Naivas");
-        parkingSpace.get().addOnSuccessListener(documentSnapshot -> {
-            ParkingSpace parkingSpace1 = documentSnapshot.toObject(ParkingSpace.class);
-            assert parkingSpace1 != null;
-            int status = parkingSpace1.getStatus() - 1;
-            SlotDetails slotDetails = new SlotDetails();
-            slotDetails.setId(id);
-            slotDetails.setSlot(slot);
-            slotDetails.setOccupant(SharePreference.getINSTANCE(getApplicationContext()).getUser());
-            slotDetails.setCheckIn(checkIn);
-            slotDetails.setCheckOut(checkOut);
-            List<SlotDetails> slots = parkingSpace1.getSlots();
-            slots.remove(slot - 1);
-            slots.add(slot - 1, slotDetails);
-            parkingSpace1.setSlots(slots);
-            parkingSpace1.setStatus(status);
-            mDatabase.collection("parkingspaces")
-                    .document("Naivas")
-                    .set(parkingSpace1)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d(TAG, "DocumentSnapshot successfully written!");
-                        }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w(TAG, "Error writing document", e);
-                        }
-                    });
-        });
+
+    public void addBooking(int slot, String id) {
+        SlotDetails slotDetails = new SlotDetails();
+        slotDetails.setId(id);
+        slotDetails.setSlot(slot);
+        slotDetails.setOccupant(SharePreference.getINSTANCE(getApplicationContext()).getUser());
+        slotDetails.setCheckIn(checkIn);
+        slotDetails.setCheckOut(checkOut);
+        mDatabase.collection("bookings")
+                .add(slotDetails)
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully written!"))
+                .addOnFailureListener(e -> Log.w(TAG, "Error writing document", e));
+    }
+
+    private void addSchedule() {
+        BookingSchedule bookingSchedule = new BookingSchedule(
+                checkIn, checkOut, SharePreference.getINSTANCE(getApplicationContext()).getMainVehicleNumber()
+        );
+        mDatabase.collection("schedule")
+                .add(bookingSchedule)
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully written!"))
+                .addOnFailureListener(e -> Log.w(TAG, "Error writing document", e));
     }
 
     public void performSTKPush(String phone_number, int amount) {
@@ -285,5 +274,12 @@ public class ConfirmationActivity extends BaseActivity {
                 mProgressDialog.dismiss();
             }
         });
+    }
+
+    private void saveReport(Report report) {
+        mDatabase.collection("reports")
+                .add(report)
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully written!"))
+                .addOnFailureListener(e -> Log.w(TAG, "Error writing document", e));
     }
 }
