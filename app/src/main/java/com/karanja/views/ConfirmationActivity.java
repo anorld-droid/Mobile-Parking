@@ -187,7 +187,7 @@ public class ConfirmationActivity extends BaseActivity {
                     .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully written!"))
                     .addOnFailureListener(e -> Log.w(TAG, "Error writing document", e));
             addBooking(slot, bookingId);
-            addSchedule();
+            addSchedule(SharePreference.getINSTANCE(getApplicationContext()).getPickedSlot(), bookingId);
             Report report = new Report();
             report.setSlot(slot);
             report.setPayment(payment);
@@ -215,9 +215,9 @@ public class ConfirmationActivity extends BaseActivity {
                 .addOnFailureListener(e -> Log.w(TAG, "Error writing document", e));
     }
 
-    private void addSchedule() {
-        BookingSchedule bookingSchedule = new BookingSchedule(
-                checkIn, checkOut, SharePreference.getINSTANCE(getApplicationContext()).getMainVehicleNumber()
+    private void addSchedule(String slot, String bookingId) {
+        BookingSchedule bookingSchedule = new BookingSchedule(bookingId,
+                checkIn, checkOut, slot
         );
         mDatabase.collection("schedule")
                 .add(bookingSchedule)

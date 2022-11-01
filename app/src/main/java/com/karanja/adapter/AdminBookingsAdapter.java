@@ -14,18 +14,12 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.karanja.Model.Park.ParkingSpace;
 import com.karanja.Model.Park.SlotDetails;
-import com.karanja.Model.Park.UserPackedSpace;
 import com.karanja.R;
-import com.karanja.views.ScheduleActivity;
 import com.karanja.views.admin.AdminHomeActivity;
 
 import java.text.ParseException;
@@ -36,7 +30,7 @@ import java.util.List;
 public class AdminBookingsAdapter extends RecyclerView.Adapter<AdminBookingsAdapter.CustomViewHolder> {
     private static final String TAG = "ADMIN/BOOKING/ADAPTER";
     private final Context context;
-    private  List<SlotDetails> slotDetails;
+    private List<SlotDetails> slotDetails;
     private FirebaseFirestore mDatabase;
 
     public AdminBookingsAdapter(Context context, List<SlotDetails> slotDetails) {
@@ -94,10 +88,6 @@ public class AdminBookingsAdapter extends RecyclerView.Adapter<AdminBookingsAdap
             public void onClick(View view) {
                 revokeBooking(slotDetails.get(holder.getLayoutPosition()).getOccupant(), slotDetails.get(holder.getLayoutPosition()).getId());
                 slotDetails.remove(holder.getLayoutPosition());
-
-                Intent i = new Intent(context, AdminHomeActivity.class);
-                i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
-                context.startActivity(i);
             }
         });
 
@@ -144,11 +134,51 @@ public class AdminBookingsAdapter extends RecyclerView.Adapter<AdminBookingsAdap
                         if (task.isSuccessful()) {
                             for (QueryDocumentSnapshot document : task.getResult()) {
                                 if (document.exists()) {
-                                    UserPackedSpace userPackedSpace = document.toObject(UserPackedSpace.class);
                                     deleteCurrentBooking(userId, document.getId());
-                                    updateSlots(userPackedSpace.getUserId());
+                                    removeSchedule(bookingId);
+                                    removeBooking(bookingId);
                                     Log.d(TAG, document.getId() + " => " + document.getData());
                                 }
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+        mDatabase.collection("bookings")
+                .whereEqualTo("id", bookingId)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                mDatabase.collection("bookings").document(document.getId())
+                                        .delete()
+                                        .addOnSuccessListener(aVoid -> Log.d("CURRENT", "DocumentSnapshot successfully deleted!"))
+                                        .addOnFailureListener(e -> Log.w("CURRENT", "Error deleting document", e));
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
+                        }
+                    }
+                });
+
+    }
+
+    private void removeBooking(String id) {
+        mDatabase.collection("bookings")
+                .whereEqualTo("id", id)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                mDatabase.collection("bookings").document(document.getId())
+                                        .delete()
+                                        .addOnSuccessListener(aVoid -> Log.d("CURRENT", "DocumentSnapshot successfully deleted!"))
+                                        .addOnFailureListener(e -> Log.w("CURRENT", "Error deleting document", e));
                             }
                         } else {
                             Log.d(TAG, "Error getting documents: ", task.getException());
@@ -165,39 +195,21 @@ public class AdminBookingsAdapter extends RecyclerView.Adapter<AdminBookingsAdap
         Toast.makeText(context, "Booking revoked", Toast.LENGTH_SHORT).show();
     }
 
-    private void updateSlots(int slot) {
-        DocumentReference parkingSpace = mDatabase.collection("parkingspaces")
-                .document("Naivas");
-        parkingSpace.get().addOnSuccessListener(documentSnapshot -> {
-            ParkingSpace parkingSpace1 = documentSnapshot.toObject(ParkingSpace.class);
-            assert parkingSpace1 != null;
-            int status = parkingSpace1.getStatus() + 1;
-            SlotDetails slotDetails = new SlotDetails();
-            slotDetails.setId(null);
-            slotDetails.setSlot(slot);
-            slotDetails.setOccupant(null);
-            slotDetails.setCheckIn(null);
-            slotDetails.setCheckOut(null);
-            List<SlotDetails> slots = parkingSpace1.getSlots();
-            slots.remove(slot - 1);
-            slots.add(slot - 1, slotDetails);
-            parkingSpace1.setSlots(slots);
-            parkingSpace1.setStatus(status);
-            mDatabase.collection("parkingspaces")
-                    .document("Naivas")
-                    .set(parkingSpace1)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d("CONVERTTOHISTORY", "DocumentSnapshot successfully written!");
+    private void removeSchedule(String bookingId) {
+        mDatabase.collection("schedule")
+                .whereEqualTo("id", bookingId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            mDatabase.collection("schedule").document(document.getId())
+                                    .delete()
+                                    .addOnSuccessListener(aVoid -> Log.d("CURRENT", "DocumentSnapshot successfully deleted!"))
+                                    .addOnFailureListener(e -> Log.w("CURRENT", "Error deleting document", e));
                         }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w("CONVERTTOHISTORY", "Error writing document", e);
-                        }
-                    });
-        });
+                    } else {
+                        Log.d(TAG, "Error getting documents: ", task.getException());
+                    }
+                });
     }
 }

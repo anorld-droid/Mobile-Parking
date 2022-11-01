@@ -15,6 +15,7 @@ import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.app.TimePickerDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,9 +44,12 @@ import com.karanja.Model.review.ParkingHistoryModel;
 import com.karanja.R;
 import com.karanja.utils.DarajaApiClient;
 import com.karanja.utils.SharePreference;
+import com.karanja.views.ConfirmationActivity;
+import com.karanja.views.ScheduleActivity;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -60,7 +64,6 @@ public class ParkingHistoryAdapter extends RecyclerView.Adapter<ParkingHistoryAd
     private String TAG = "ParkingHistoryAdapter";
     private Context context;
     private List<ParkingHistoryModel> parkingHistory;
-    private Button re_book;
     private DarajaApiClient mApiClient;
     private ProgressDialog mProgressDialog;
     private FirebaseFirestore mDatabase;
@@ -72,6 +75,7 @@ public class ParkingHistoryAdapter extends RecyclerView.Adapter<ParkingHistoryAd
     private long payment;
     private EditText phoneNumber;
     private String duration;
+    private SimpleDateFormat dateFormatter;
 
     public ParkingHistoryAdapter(Context context, List<ParkingHistoryModel> parkingHistory) {
         this.context = context;
@@ -97,6 +101,7 @@ public class ParkingHistoryAdapter extends RecyclerView.Adapter<ParkingHistoryAd
             re_book = view.findViewById(R.id.ph_btn_rebook);
             mProgressDialog = new ProgressDialog(context);
             mApiClient = new DarajaApiClient();
+            dateFormatter = new SimpleDateFormat("EEE, dd MMM, HH:mm:ss");
             mApiClient.setIsDebug(true); //Set True to enable logging, false to disable.
             getAccessToken();
 
@@ -116,20 +121,12 @@ public class ParkingHistoryAdapter extends RecyclerView.Adapter<ParkingHistoryAd
 
     @Override
     public void onBindViewHolder(CustomViewHolder holder, int position) {
-
         //For testing purposes
         holder.date_time.setText(String.valueOf(parkingHistory.get(position).getParkingHistoryDate() + " " + parkingHistory.get(position).getParkingHistoryTime()));
         holder.location.setText(parkingHistory.get(position).getLocation());
         holder.qr_code.setText(parkingHistory.get(position).getQrCode());
         holder.amount.setText(String.valueOf("Ksh." + parkingHistory.get(position).getAmount()));
-
-        holder.re_book.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-
-                    changeDate(parkingHistory.get(holder.getLayoutPosition()));
-
-            }
-        });
+        holder.re_book.setOnClickListener(v -> changeDate(parkingHistory.get(holder.getLayoutPosition())));
 
     }
 
@@ -150,7 +147,6 @@ public class ParkingHistoryAdapter extends RecyclerView.Adapter<ParkingHistoryAd
 
                 }
             }
-
             @Override
             public void onFailure(@NonNull Call<AccessToken> call, @NonNull Throwable t) {
             }
@@ -240,10 +236,43 @@ public class ParkingHistoryAdapter extends RecyclerView.Adapter<ParkingHistoryAd
         dialogButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                Toast.makeText(context, phoneNumber.getText().toString(), Toast.LENGTH_SHORT).show();
-                if (validateBooking()) {
-                    performSTKPush(phoneNumber.getText().toString(), parkingHistory);
+                try {
+                    String slot = "SLOT " + parkingHistory.getUserId();
+                    Date checkIn = dateFormatter.parse(dateFormatter.format(checkInDate.getTime()));
+                    Date checkOut = dateFormatter.parse(dateFormatter.format(checkOutDate.getTime()));
+                    assert checkOut != null;
+                    assert checkIn != null;
+                    if (checkOut.after(checkIn)) {
+                        Task<QuerySnapshot> collectionRef = mDatabase.collection("schedule").get();
+                        collectionRef.addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                for (QueryDocumentSnapshot document : task.getResult()) {
+                                    if (document.exists()) {
+                                        BookingSchedule bookingSchedule = document.toObject(BookingSchedule.class);
+                                        try {
+                                            Date exDateIn = dateFormatter.parse(bookingSchedule.getCheckIn());
+                                            Date exDateOut = dateFormatter.parse(bookingSchedule.getCheckOut());
+                                            if (!(checkIn.after(exDateOut) || checkOut.before(exDateIn)) && bookingSchedule.getSlot().equals(slot)) {
+                                                Toast.makeText(getApplicationContext(), "Booking time unavailable, change slot or time", Toast.LENGTH_LONG).show();
+                                                dialog.dismiss();
+                                            }
+                                        } catch (ParseException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }
+                            } else {
+                                Toast.makeText(getApplicationContext(), "Failed to retrieve items, check your internet connection and try again.", Toast.LENGTH_LONG).show();
+                                Log.d("TAG", "Error getting documents: ", task.getException());
+                            }
+                        });
+                    }else {
+                        Toast.makeText(getApplicationContext(), "You cannot checkout before check in.", Toast.LENGTH_SHORT).show();
+                    }
+                } catch (ParseException e) {
+                    e.printStackTrace();
                 }
+                performSTKPush(phoneNumber.getText().toString(), parkingHistory);
                 dialog.dismiss();
             }
         });
@@ -308,25 +337,29 @@ public class ParkingHistoryAdapter extends RecyclerView.Adapter<ParkingHistoryAd
     }
 
     private void convert_to_current(ParkingHistoryModel parkingHistoryModel) {
+        String mCheckIn = getFormattedDay(checkInDate) + ", " + getFormattedTime(checkInDate);
+        String mCheckOut = getFormattedDay(checkOutDate) + ", " + getFormattedTime(checkOutDate);
+        String slot = "SLOT " + parkingHistoryModel.getUserId();
         Random rand = new Random();
         String bookingId = String.format("%06d", rand.nextInt(999999));
         UserPackedSpace userPackedSpace = new UserPackedSpace();
         userPackedSpace.setCarParkBookingId(bookingId);
         userPackedSpace.setUserId(parkingHistoryModel.getUserId());
         userPackedSpace.setAddress(parkingHistoryModel.getLocation());
-        userPackedSpace.setCheckIn(getFormattedDay(checkInDate) + ", " + getFormattedTime(checkInDate));
-        userPackedSpace.setCheckOut(getFormattedDay(checkOutDate) + ", " + getFormattedTime(checkOutDate));
+        userPackedSpace.setCheckIn(mCheckIn);
+        userPackedSpace.setCheckOut(mCheckOut);
         userPackedSpace.setVehicleNo(parkingHistoryModel.getVehicleNo());
         userPackedSpace.setOwner(parkingHistoryModel.getOwner());
         userPackedSpace.setAmount(String.valueOf(payment));
-
         Report report = new Report();
         report.setSlot(parkingHistoryModel.getUserId());
         report.setPayment(payment);
         report.setOccupant(userID);
-        report.setCheckIn(getFormattedDay(checkInDate) + ", " + getFormattedTime(checkInDate));
-        report.setCheckOut(getFormattedDay(checkOutDate) + ", " + getFormattedTime(checkOutDate));
+        report.setCheckIn(mCheckIn);
+        report.setCheckOut(mCheckOut);
         saveReport(report);
+        BookingSchedule bookingSchedule = new BookingSchedule(bookingId, mCheckIn, mCheckOut,slot);
+        addSchedule(bookingSchedule);
         mDatabase.collection("parkingspaces").document(userID).collection("current")
                 .add(userPackedSpace)
                 .addOnSuccessListener(aVoid -> Log.d("R/B", "DocumentSnapshot successfully written!"))
@@ -352,52 +385,16 @@ public class ParkingHistoryAdapter extends RecyclerView.Adapter<ParkingHistoryAd
                 .addOnFailureListener(e -> Log.w(TAG, "Error writing document", e));
     }
 
-    private boolean validateBooking() {
-         AtomicBoolean valid = new AtomicBoolean(false);
-        Task<QuerySnapshot> collectionRef = mDatabase.collection("schedule").get();
-        collectionRef.addOnCompleteListener(task -> {
-            if (task.isSuccessful()) {
-                for (QueryDocumentSnapshot document : task.getResult()) {
-                    if (document.exists()) {
-                        BookingSchedule bookingSchedule = document.toObject(BookingSchedule.class);
-                        if (checkDates(bookingSchedule.getCheckIn(), bookingSchedule.getCheckOut())) {
-                            Toast.makeText(getApplicationContext(), "Booking time unavailable", Toast.LENGTH_LONG).show();
-                            valid.set(false);
-                            break;
-                        } else {
-                            valid.set(true);
-                        }
-                    }else{
-                        valid.set(false);
-                    }
-                }
-            } else {
-                Toast.makeText(getApplicationContext(), "Failed to retrieve items, check your internet connection and try again.", Toast.LENGTH_LONG).show();
-                Log.d("TAG", "Error getting documents: ", task.getException());
-            }
-        });
-        return valid.get();
-    }
-
-    private boolean checkDates(String exCheckIn, String exCheckOut) {
-        SimpleDateFormat formatter = new SimpleDateFormat("EEE, dd MMM, HH:mm:ss");
-        try {
-            Date exDateIn = formatter.parse(exCheckIn);
-            Date exDateOut = formatter.parse(exCheckOut);
-            if (checkInDate.after(exDateOut) || checkOutDate.before(exDateIn)) {
-                return true;
-            } else {
-                return false;
-            }
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
     private void saveReport(Report report) {
         mDatabase.collection("reports")
                 .add(report)
+                .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully written!"))
+                .addOnFailureListener(e -> Log.w(TAG, "Error writing document", e));
+    }
+
+    private void addSchedule(BookingSchedule bookingSchedule) {
+        mDatabase.collection("schedule")
+                .add(bookingSchedule)
                 .addOnSuccessListener(aVoid -> Log.d(TAG, "DocumentSnapshot successfully written!"))
                 .addOnFailureListener(e -> Log.w(TAG, "Error writing document", e));
     }

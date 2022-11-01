@@ -14,10 +14,14 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.karanja.Model.Park.ParkingSpace;
 import com.karanja.Model.Park.SlotDetails;
 import com.karanja.Model.Park.UserPackedSpace;
@@ -32,6 +36,7 @@ import java.util.List;
 import java.util.Random;
 
 public class CurrentSpaceAdapter extends RecyclerView.Adapter<CurrentSpaceAdapter.CustomViewHolder> {
+    private static final String TAG = "CURRENTADAPTERCLASS";
     private Context context;
     private List<UserPackedSpace> userPackedSpaces;
 
@@ -149,7 +154,6 @@ public class CurrentSpaceAdapter extends RecyclerView.Adapter<CurrentSpaceAdapte
             int index = rand.nextInt(10);
             String[] qrCode = {"SZEK0932", "SEJK0965", "SXEQ2313", "SARO0079", "SWER4829", "STUY1212", "DEUY7804", "YTU7654E", "HYUT4453", "OILK897Y"};
             ParkingHistoryModel phm = new ParkingHistoryModel();
-
             phm.setParkingHistoryDate(dateTo);
             phm.setParkingHistoryTime(timeTo);
             phm.setUserId(userPackedSpaces.get(position).getUserId());
@@ -165,7 +169,8 @@ public class CurrentSpaceAdapter extends RecyclerView.Adapter<CurrentSpaceAdapte
                     .delete()
                     .addOnSuccessListener(aVoid -> Log.d("CURRENT", "DocumentSnapshot successfully deleted!"))
                     .addOnFailureListener(e -> Log.w("CURRENT", "Error deleting document", e));
-            updateSlots(userPackedSpaces.get(position).getUserId());
+            removeBooking(userPackedSpaces.get(position).getCarParkBookingId());
+            removeSchedule(userPackedSpaces.get(position).getCarParkBookingId());
             mDatabase.collection("parkingspaces").document(userID).collection("history").add(phm)
                     .addOnSuccessListener(documentReference -> Log.d("HISTORY", "DocumentSnapshot successfully written!"))
                     .addOnFailureListener(e -> Log.w("TAG", "Error writing document", e));
@@ -174,41 +179,42 @@ public class CurrentSpaceAdapter extends RecyclerView.Adapter<CurrentSpaceAdapte
             e.printStackTrace();
         }
     }
-
-    private void updateSlots(int slot) {
-        DocumentReference parkingSpace = mDatabase.collection("parkingspaces")
-                .document("Naivas");
-        parkingSpace.get().addOnSuccessListener(documentSnapshot -> {
-            ParkingSpace parkingSpace1 = documentSnapshot.toObject(ParkingSpace.class);
-            assert parkingSpace1 != null;
-            int status = parkingSpace1.getStatus() + 1;
-            SlotDetails slotDetails = new SlotDetails();
-            slotDetails.setId(null);
-            slotDetails.setSlot(slot);
-            slotDetails.setOccupant(null);
-            slotDetails.setCheckIn(null);
-            slotDetails.setCheckOut(null);
-            List<SlotDetails> slots = parkingSpace1.getSlots();
-            slots.remove(slot - 1);
-            slots.add(slot - 1, slotDetails);
-            parkingSpace1.setSlots(slots);
-            parkingSpace1.setStatus(status);
-            mDatabase.collection("parkingspaces")
-                    .document("Naivas")
-                    .set(parkingSpace1)
-                    .addOnSuccessListener(new OnSuccessListener<Void>() {
-                        @Override
-                        public void onSuccess(Void aVoid) {
-                            Log.d("CONVERTTOHISTORY", "DocumentSnapshot successfully written!");
+    private void removeBooking(String id){
+        mDatabase.collection("bookings")
+                .whereEqualTo("id", id)
+                .get()
+                .addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<QuerySnapshot> task) {
+                        if (task.isSuccessful()) {
+                            for (QueryDocumentSnapshot document : task.getResult()) {
+                                mDatabase.collection("bookings").document(document.getId())
+                                        .delete()
+                                        .addOnSuccessListener(aVoid -> Log.d("CURRENT", "DocumentSnapshot successfully deleted!"))
+                                        .addOnFailureListener(e -> Log.w("CURRENT", "Error deleting document", e));
+                            }
+                        } else {
+                            Log.d(TAG, "Error getting documents: ", task.getException());
                         }
-                    })
-                    .addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception e) {
-                            Log.w("CONVERTTOHISTORY", "Error writing document", e);
-                        }
-                    });
-        });
+                    }
+                });
     }
 
+    private void removeSchedule(String bookingId){
+        mDatabase.collection("schedule")
+                .whereEqualTo("id", bookingId)
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            mDatabase.collection("schedule").document(document.getId())
+                                    .delete()
+                                    .addOnSuccessListener(aVoid -> Log.d("CURRENT", "DocumentSnapshot successfully deleted!"))
+                                    .addOnFailureListener(e -> Log.w("CURRENT", "Error deleting document", e));
+                        }
+                    } else {
+                        Log.d(TAG, "Error getting documents: ", task.getException());
+                    }
+                });
+    }
 }
