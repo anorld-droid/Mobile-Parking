@@ -6,6 +6,7 @@
     <string name="vehicleNo">Vehicle No.</string>
     <string name="change">Change</string>
     <string name="next">Next</string>
+    <string name="save_report">Save Report</string>
     <string name="addVehicle">Add Vehicle</string>
     <string name="title_activity_my_vehicle">My Vehicle</string>
     <string name="card">Card</string>

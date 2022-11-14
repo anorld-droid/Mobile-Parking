@@ -1,7 +1,6 @@
 package com.karanja.adapter;
 
 import android.content.Context;
-import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,7 +19,6 @@ import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.karanja.Model.Park.SlotDetails;
 import com.karanja.R;
-import com.karanja.views.admin.AdminHomeActivity;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
