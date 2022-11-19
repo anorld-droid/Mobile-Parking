@@ -14,10 +14,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.karanja.Model.Park.SlotDetails;
+import com.karanja.Model.review.NotificationModel;
 import com.karanja.R;
 
 import java.text.ParseException;
@@ -81,12 +85,11 @@ public class AdminBookingsAdapter extends RecyclerView.Adapter<AdminBookingsAdap
         holder.checkOutDate.setText(getFormattedDate(slotDetails.get(position).getCheckOut()));
         holder.checkOutTime.setText(getFormattedTime(slotDetails.get(position).getCheckOut()));
 
-        holder.cancelBooking.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                revokeBooking(slotDetails.get(holder.getLayoutPosition()).getOccupant(), slotDetails.get(holder.getLayoutPosition()).getId());
-                slotDetails.remove(holder.getLayoutPosition());
-            }
+        holder.cancelBooking.setOnClickListener(view -> {
+            String uid = slotDetails.get(holder.getLayoutPosition()).getOccupant();
+            setNotification(uid);
+            revokeBooking(uid, slotDetails.get(holder.getLayoutPosition()).getId());
+            slotDetails.remove(holder.getLayoutPosition());
         });
 
     }
@@ -162,6 +165,16 @@ public class AdminBookingsAdapter extends RecyclerView.Adapter<AdminBookingsAdap
                     }
                 });
 
+    }
+
+    private void setNotification(String userID) {
+
+        SimpleDateFormat formatter = new SimpleDateFormat("EEE, dd MMM, HH:mm:ss");
+        Date dn = new Date();
+        String formatted = formatter.format(dn);
+        NotificationModel notificationModel = new NotificationModel( "Your parking session has been revoked.", R.drawable.notification_image_three, formatted);
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("Notifications");
+        reference.child(userID).child(formatted).setValue(notificationModel);
     }
 
     private void removeBooking(String id) {

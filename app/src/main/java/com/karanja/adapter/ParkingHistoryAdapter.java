@@ -255,6 +255,9 @@ public class ParkingHistoryAdapter extends RecyclerView.Adapter<ParkingHistoryAd
                                             if (!(checkIn.after(exDateOut) || checkOut.before(exDateIn)) && bookingSchedule.getSlot().equals(slot)) {
                                                 Toast.makeText(getApplicationContext(), "Booking time unavailable, change slot or time", Toast.LENGTH_LONG).show();
                                                 dialog.dismiss();
+                                            }else {
+                                                performSTKPush(phoneNumber.getText().toString(), parkingHistory);
+                                                break;
                                             }
                                         } catch (ParseException e) {
                                             e.printStackTrace();
@@ -272,7 +275,6 @@ public class ParkingHistoryAdapter extends RecyclerView.Adapter<ParkingHistoryAd
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
-                performSTKPush(phoneNumber.getText().toString(), parkingHistory);
                 dialog.dismiss();
             }
         });

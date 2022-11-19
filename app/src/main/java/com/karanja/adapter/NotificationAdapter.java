@@ -40,12 +40,7 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         holder.mMessage.setText(item.getMessage());
         holder.mTimestamp.setText(item.getTimeStamp());
         holder.mIcon.setImageResource(item.getImageUrl());
-        holder.imageView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
 
-            }
-        });
     }
 
     @Override
@@ -60,14 +55,12 @@ public class NotificationAdapter extends RecyclerView.Adapter<NotificationAdapte
         private TextView mMessage;
         private TextView mTimestamp;
         private CircleImageView mIcon;
-        private ImageView imageView;
 
         private ViewHolder(View itemView) {
             super(itemView);
             mMessage = itemView.findViewById(R.id.notification_message);
             mTimestamp = itemView.findViewById(R.id.notication_timestamp);
             mIcon = itemView.findViewById(R.id.notification_icon);
-            imageView = itemView.findViewById(R.id.enter_image);
         }
     }
 }

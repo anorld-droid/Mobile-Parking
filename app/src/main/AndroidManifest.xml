@@ -27,6 +27,7 @@
             android:parentActivityName=".views.admin.AdminHomeActivity"/>
         <activity
             android:name=".views.admin.AdminHomeActivity"
+            android:theme="@style/AppTheme.NoActionBar"
             android:exported="false" />
         <activity
             android:name=".Register.RegisterActivity"
@@ -43,10 +44,6 @@
         <activity
             android:name=".views.SupportActivity"
             android:label="Support"
-            android:parentActivityName=".views.SettingsActivity" />
-        <activity
-            android:name=".views.NotificationActivity"
-            android:label="Notification"
             android:parentActivityName=".views.SettingsActivity" />
         <activity
             android:name=".views.SettingsActivity"

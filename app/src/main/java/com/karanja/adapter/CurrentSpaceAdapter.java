@@ -15,16 +15,15 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.karanja.Model.Park.ParkingSpace;
-import com.karanja.Model.Park.SlotDetails;
 import com.karanja.Model.Park.UserPackedSpace;
+import com.karanja.Model.review.NotificationModel;
 import com.karanja.Model.review.ParkingHistoryModel;
 import com.karanja.R;
 import com.karanja.utils.SharePreference;
@@ -50,39 +49,6 @@ public class CurrentSpaceAdapter extends RecyclerView.Adapter<CurrentSpaceAdapte
         this.userPackedSpaces = userPackedSpaces;
     }
 
-    class CustomViewHolder extends RecyclerView.ViewHolder {
-        public final View view;
-        TextView bookingID;
-        TextView parkingSlot;
-        TextView fromDate;
-        TextView fromTime;
-        TextView toDate;
-        TextView toTime;
-        TextView vehicle;
-        TextView vehicle_name;
-        Button check_out;
-
-        CustomViewHolder(View itemView) {
-            super(itemView);
-            view = itemView;
-
-            bookingID = view.findViewById(R.id.booking_id);
-            parkingSlot = view.findViewById(R.id.parking_slot);
-            fromDate = view.findViewById(R.id.from_date);
-            fromTime = view.findViewById(R.id.from_time);
-            toDate = view.findViewById(R.id.to_date);
-            toTime = view.findViewById(R.id.to_time);
-            vehicle = view.findViewById(R.id.vehicle_number);
-            vehicle_name = view.findViewById(R.id.vehicle_name);
-            check_out = view.findViewById(R.id.btn_check_out);
-
-            mDatabase = FirebaseFirestore.getInstance();
-            userID = SharePreference.getINSTANCE(getApplicationContext()).getUser();
-
-
-        }
-    }
-
     @Override
     public CustomViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
@@ -106,7 +72,7 @@ public class CurrentSpaceAdapter extends RecyclerView.Adapter<CurrentSpaceAdapte
             String timeTo = time.format(dateOut);
             if (dateOut.after(today)) {
                 holder.bookingID.setText(userPackedSpaces.get(position).getCarParkBookingId());
-                holder.parkingSlot.setText(String.valueOf("SLOT "+userPackedSpaces.get(position).getUserId()));
+                holder.parkingSlot.setText(String.valueOf("SLOT " + userPackedSpaces.get(position).getUserId()));
 
                 assert dateIn != null;
                 String inDate = date.format(dateIn);
@@ -121,6 +87,7 @@ public class CurrentSpaceAdapter extends RecyclerView.Adapter<CurrentSpaceAdapte
                 holder.vehicle_name.setText(userPackedSpaces.get(position).getOwner());
                 holder.vehicle.setText(userPackedSpaces.get(position).getVehicleNo().toUpperCase());
             } else {
+                setNotification("Your parking session has ended.");
                 convert_to_history(position);
             }
         } catch (ParseException e) {
@@ -128,6 +95,7 @@ public class CurrentSpaceAdapter extends RecyclerView.Adapter<CurrentSpaceAdapte
         }
         holder.check_out.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
+                setNotification("You have checkout out of your parking session.");
                 convert_to_history(holder.getLayoutPosition());
                 Toast.makeText(context, "Checked Out", Toast.LENGTH_SHORT).show();
 
@@ -135,10 +103,20 @@ public class CurrentSpaceAdapter extends RecyclerView.Adapter<CurrentSpaceAdapte
         });
     }
 
-
     @Override
     public int getItemCount() {
         return userPackedSpaces.size();
+    }
+
+    private void setNotification(String message) {
+        SimpleDateFormat formatter = new SimpleDateFormat("EEE, dd MMM, HH:mm:ss");
+        Date dn = new Date();
+        String formatted = formatter.format(dn);
+        NotificationModel notificationModel = new NotificationModel(message, R.drawable.notification_image_three, formatted);
+        DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("Notifications");
+        String userID = SharePreference.getINSTANCE(getApplicationContext()).getUser();
+
+        reference.child(userID).child(formatted).setValue(notificationModel);
     }
 
     private void convert_to_history(int position) {
@@ -178,8 +156,10 @@ public class CurrentSpaceAdapter extends RecyclerView.Adapter<CurrentSpaceAdapte
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        userPackedSpaces.remove(userPackedSpaces.get(position));
     }
-    private void removeBooking(String id){
+
+    private void removeBooking(String id) {
         mDatabase.collection("bookings")
                 .whereEqualTo("id", id)
                 .get()
@@ -200,7 +180,7 @@ public class CurrentSpaceAdapter extends RecyclerView.Adapter<CurrentSpaceAdapte
                 });
     }
 
-    private void removeSchedule(String bookingId){
+    private void removeSchedule(String bookingId) {
         mDatabase.collection("schedule")
                 .whereEqualTo("id", bookingId)
                 .get()
@@ -216,5 +196,38 @@ public class CurrentSpaceAdapter extends RecyclerView.Adapter<CurrentSpaceAdapte
                         Log.d(TAG, "Error getting documents: ", task.getException());
                     }
                 });
+    }
+
+    class CustomViewHolder extends RecyclerView.ViewHolder {
+        public final View view;
+        TextView bookingID;
+        TextView parkingSlot;
+        TextView fromDate;
+        TextView fromTime;
+        TextView toDate;
+        TextView toTime;
+        TextView vehicle;
+        TextView vehicle_name;
+        Button check_out;
+
+        CustomViewHolder(View itemView) {
+            super(itemView);
+            view = itemView;
+
+            bookingID = view.findViewById(R.id.booking_id);
+            parkingSlot = view.findViewById(R.id.parking_slot);
+            fromDate = view.findViewById(R.id.from_date);
+            fromTime = view.findViewById(R.id.from_time);
+            toDate = view.findViewById(R.id.to_date);
+            toTime = view.findViewById(R.id.to_time);
+            vehicle = view.findViewById(R.id.vehicle_number);
+            vehicle_name = view.findViewById(R.id.vehicle_name);
+            check_out = view.findViewById(R.id.btn_check_out);
+
+            mDatabase = FirebaseFirestore.getInstance();
+            userID = SharePreference.getINSTANCE(getApplicationContext()).getUser();
+
+
+        }
     }
 }

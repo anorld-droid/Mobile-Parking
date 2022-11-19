@@ -5,6 +5,10 @@ public class NotificationModel {
     private Integer imageUrl;
     private String timeStamp;
 
+
+     public  NotificationModel(){
+
+     }
     public NotificationModel(String message, Integer imageUrl, String timeStamp) {
         this.message = message;
         this.imageUrl = imageUrl;
