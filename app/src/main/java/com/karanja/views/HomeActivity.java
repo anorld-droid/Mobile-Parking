@@ -19,6 +19,12 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.karanja.Api.Responses.BaseDataResponse;
 import com.karanja.Model.User;
 import com.karanja.R;
@@ -46,7 +52,7 @@ public class HomeActivity extends BaseActivity {
     private NavigationView navigationView;
     private ActionBarDrawerToggle toggle;
     private boolean mToolBarNavigationListenerIsRegistered = false;
-    private TextView navText;
+    private TextView nav_fullnames, nav_phonenumber;
     private View headerView;
 
     @Override
@@ -80,7 +86,6 @@ public class HomeActivity extends BaseActivity {
                 if(response.isSuccessful()){
                     setUser(response.body().getData());
                     String name = getUser().getFirstName() + " " + getUser().getLastName();
-                    navText.setText(name);
                 }
 
 
@@ -103,9 +108,35 @@ public class HomeActivity extends BaseActivity {
         mDrawerLayout.addDrawerListener(toggle);
         toggle.syncState();
         headerView = navigationView.getHeaderView(0);
-        navText = headerView.findViewById(R.id.nav_drawer_name);
+        nav_fullnames = headerView.findViewById(R.id.nav_user_fullnames);
+        nav_phonenumber = headerView.findViewById(R.id.nav_user_phone_number);
+
+        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("user").child(
+                SharePreference.getINSTANCE(HomeActivity.this).getUser()
+        );
+
+        userRef.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    String name = snapshot.child("fullname").getValue().toString();
+                    nav_fullnames.setText(name);
+                    String number = snapshot.child("phoneNumber").getValue().toString();
+                    nav_phonenumber.setText(number);
+
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
+
+
 
     }
+
 
     private void setUpDefaultFragment() {
         DefaultFragment defaultFragment = new DefaultFragment();

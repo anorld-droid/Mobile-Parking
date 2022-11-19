@@ -115,7 +115,6 @@ public class CurrentSpaceAdapter extends RecyclerView.Adapter<CurrentSpaceAdapte
         NotificationModel notificationModel = new NotificationModel(message, R.drawable.notification_image_three, formatted);
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference().child("Notifications");
         String userID = SharePreference.getINSTANCE(getApplicationContext()).getUser();
-
         reference.child(userID).child(formatted).setValue(notificationModel);
     }
 
