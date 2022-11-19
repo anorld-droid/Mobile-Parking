@@ -44,12 +44,14 @@
         <entry key="app/src/main/res/layout/header.xml" value="0.35520833333333335" />
         <entry key="app/src/main/res/layout/list_item.xml" value="0.35520833333333335" />
         <entry key="app/src/main/res/layout/list_map.xml" value="0.18072916666666666" />
+        <entry key="app/src/main/res/layout/nav_header_layout.xml" value="0.35520833333333335" />
         <entry key="app/src/main/res/layout/parking_history_item.xml" value="0.18072916666666666" />
         <entry key="app/src/main/res/layout/profile_content.xml" value="0.35520833333333335" />
         <entry key="app/src/main/res/layout/report_layout_item.xml" value="0.3541666666666667" />
         <entry key="app/src/main/res/layout/slot_layout_item.xml" value="0.3541666666666667" />
         <entry key="app/src/main/res/layout/temp.xml" value="0.35520833333333335" />
         <entry key="app/src/main/res/layout/vehicle_item.xml" value="0.35520833333333335" />
+        <entry key="app/src/main/res/menu/admin_menu.xml" value="0.3541666666666667" />
         <entry key="app/src/main/res/menu/menu.xml" value="0.35520833333333335" />
         <entry key="app/src/main/res/menu/nav_menu_items.xml" value="0.35520833333333335" />
         <entry key="app/src/main/res/xml/settings_preferences.xml" value="0.35520833333333335" />

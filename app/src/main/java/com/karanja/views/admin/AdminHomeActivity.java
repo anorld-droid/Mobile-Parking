@@ -3,12 +3,15 @@ package com.karanja.views.admin;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
@@ -41,7 +44,6 @@ public class AdminHomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_admin_home);
-
         getSupportActionBar().setTitle("Administrator");
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
@@ -91,5 +93,23 @@ public class AdminHomeActivity extends AppCompatActivity {
             }
             progressBar.setVisibility(View.GONE);
         });
+    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.admin_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.logout:
+                Intent intent2 = new Intent(AdminHomeActivity.this, LoginActivity.class);
+                startActivity(intent2);
+                finish();
+                return true;
+
+        }
+        return super.onOptionsItemSelected(item);
     }
 }

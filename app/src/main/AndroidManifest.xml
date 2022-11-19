@@ -27,7 +27,6 @@
             android:parentActivityName=".views.admin.AdminHomeActivity"/>
         <activity
             android:name=".views.admin.AdminHomeActivity"
-            android:theme="@style/AppTheme.NoActionBar"
             android:exported="false" />
         <activity
             android:name=".Register.RegisterActivity"
