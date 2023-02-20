@@ -47,28 +47,28 @@ public class AdminHomeActivity extends AppCompatActivity {
         getSupportActionBar().setTitle("Administrator");
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
 
-        slots = new ArrayList<>();
-        mDatabase = FirebaseFirestore.getInstance();
-        progressBar = findViewById(R.id.loading_progress_bar);
-        recyclerView = findViewById(R.id.current_bookings_recycler_view);
-        noActiveSlots = findViewById(R.id.no_bookings);
-        generateReport = findViewById(R.id.generate_report);
-        adminBookingsAdapter = new AdminBookingsAdapter(this, slots);
-
-        noActiveSlots.setVisibility(View.INVISIBLE);
-        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
-
-        recyclerView.setLayoutManager(layoutManager);
-        recyclerView.setAdapter(adminBookingsAdapter);
-
-        generateReport.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivity(new Intent(AdminHomeActivity.this, ReportsActivity.class));
-            }
-        });
-
-        getBookings();
+//        slots = new ArrayList<>();
+//        mDatabase = FirebaseFirestore.getInstance();
+//        progressBar = findViewById(R.id.loading_progress_bar);
+//        recyclerView = findViewById(R.id.current_bookings_recycler_view);
+//        noActiveSlots = findViewById(R.id.no_bookings);
+//        generateReport = findViewById(R.id.generate_report);
+//        adminBookingsAdapter = new AdminBookingsAdapter(this, slots);
+//
+//        noActiveSlots.setVisibility(View.INVISIBLE);
+//        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+//
+//        recyclerView.setLayoutManager(layoutManager);
+//        recyclerView.setAdapter(adminBookingsAdapter);
+//
+//        generateReport.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                startActivity(new Intent(AdminHomeActivity.this, ReportsActivity.class));
+//            }
+//        });
+//
+//        getBookings();
 
     }
 

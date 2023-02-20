@@ -75,7 +75,7 @@ public class OnboardingActivity extends AhoyOnboarderActivity {
         editor.putBoolean("firstTime",false);
         editor.apply();
 
-        intent = new Intent( OnboardingActivity.this, LoginActivity.class);
+        intent = new Intent(OnboardingActivity.this, LoginActivity.class);
         startActivity(intent);
         finish();
     }

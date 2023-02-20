@@ -36,6 +36,8 @@
         <entry key="app/src/main/res/layout/fragment_about.xml" value="0.35520833333333335" />
         <entry key="app/src/main/res/layout/fragment_current_space.xml" value="0.22" />
         <entry key="app/src/main/res/layout/fragment_list.xml" value="0.35520833333333335" />
+        <entry key="app/src/main/res/layout/fragment_map.xml" value="0.35520833333333335" />
+        <entry key="app/src/main/res/layout/fragment_map_list.xml" value="0.35520833333333335" />
         <entry key="app/src/main/res/layout/fragment_my_vehicle.xml" value="0.18072916666666666" />
         <entry key="app/src/main/res/layout/fragment_notification.xml" value="0.35520833333333335" />
         <entry key="app/src/main/res/layout/fragment_parking_history.xml" value="0.18072916666666666" />

@@ -9,19 +9,14 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.karanja.R;
-import com.karanja.utils.SharePreference;
-import com.karanja.views.admin.AdminHomeActivity;
 import com.karanja.views.HomeActivity;
+import com.karanja.views.admin.AdminHomeActivity;
 
 import java.util.Objects;
 
@@ -29,13 +24,13 @@ import java.util.Objects;
 public class LoginActivity extends AppCompatActivity {
 
     final String TAG = "LOGIN";
+    DatabaseReference databaseReference;
     private EditText username;
     private EditText password;
     private EditText email;
     private Button login;
     private Switch isAdminSwitch;
     private TextView registerNowBtn;
-    DatabaseReference databaseReference;
     private FirebaseAuth mAuth;
 
 
@@ -45,7 +40,6 @@ public class LoginActivity extends AppCompatActivity {
         setContentView(R.layout.activity_login);
         Objects.requireNonNull(getSupportActionBar()).setTitle("Parking");
         getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-        username = findViewById(R.id.username);
         password = findViewById(R.id.password);
         login = findViewById(R.id.login);
 
@@ -56,42 +50,14 @@ public class LoginActivity extends AppCompatActivity {
         mAuth = FirebaseAuth.getInstance();
 
         login.setOnClickListener(view -> {
-            final String usernameTxt = username.getText().toString();
             final String passwordTxt = password.getText().toString();
             final String emailTxt = email.getText().toString();
-            if (usernameTxt.isEmpty() || passwordTxt.isEmpty()) {
-                Toast.makeText(LoginActivity.this, "enter username and pasword", Toast.LENGTH_SHORT).show();
+            if (passwordTxt.isEmpty()) {
+                Toast.makeText(LoginActivity.this, "Enter your email and password", Toast.LENGTH_SHORT).show();
 
             } else {
-                if (isAdminSwitch.isChecked()) {
-                    signIn(emailTxt, passwordTxt);
-                } else {
-                    databaseReference.child("user").addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                            //check idNo if it exist
-                            if (dataSnapshot.hasChild(usernameTxt)) {
-                                SharePreference.getINSTANCE(getApplicationContext()).setUser(usernameTxt);
-                                final String getpassword = dataSnapshot.child(usernameTxt).child("password").getValue(String.class);
-                                if (getpassword.equals(passwordTxt)) {
-                                    Toast.makeText(LoginActivity.this, "login success", Toast.LENGTH_SHORT).show();
-                                    SharePreference.getINSTANCE(getApplicationContext()).setPhoneNumber(dataSnapshot.child(usernameTxt).child("phoneNumber").getValue(String.class));
-                                    //login to user activity
-                                    startActivity(new Intent(LoginActivity.this, HomeActivity.class));
-                                    finish();
-                                } else {
-                                    Toast.makeText(LoginActivity.this, "wrong password", Toast.LENGTH_SHORT).show();
-                                }
-                            } else {
-                                Toast.makeText(LoginActivity.this, "invalid id", Toast.LENGTH_SHORT).show();
-                            }
-                        }
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-                        }
-                    });
-                }
+                signIn(emailTxt, passwordTxt); //TODO: Get user info for nav header
+                // TODO Navigate to HOMe or AdminHomeActivity
             }
         });
 
@@ -110,7 +76,14 @@ public class LoginActivity extends AppCompatActivity {
                     if (task.isSuccessful()) {
                         // Sign in success, update UI with the signed-in user's information
                         Log.d(TAG, "signInWithEmail:success");
-                        Intent intent = new Intent(LoginActivity.this, AdminHomeActivity.class);
+
+                        Intent intent;
+                        if (isAdminSwitch.isChecked()){
+                            intent = new Intent(LoginActivity.this, AdminHomeActivity.class);
+                        } else {
+                            intent = new Intent(LoginActivity.this, HomeActivity.class);
+
+                        }
                         startActivity(intent);
                         finish();
                         overridePendingTransition(R.anim.slide_in_right, R.anim.slide_out_left);

@@ -1,5 +1,8 @@
 package com.karanja.views;
 
+import static com.karanja.utils.Commons.getUser;
+import static com.karanja.utils.Commons.setUser;
+
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
@@ -19,7 +22,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
-import com.google.firebase.auth.FirebaseAuth;
+import com.google.android.material.navigation.NavigationView;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -33,16 +36,10 @@ import com.karanja.utils.SharePreference;
 import com.karanja.views.homefragments.DefaultFragment;
 import com.karanja.views.homefragments.MyVehicleFragment;
 import com.karanja.views.homefragments.PaymentMethodsFragment;
-import com.facebook.login.LoginManager;
-import com.google.android.material.navigation.NavigationView;
-
-
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
-
-import static com.karanja.utils.Commons.*;
 
 public class HomeActivity extends BaseActivity {
 
@@ -59,22 +56,22 @@ public class HomeActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-        initViews();
-        fetchUserDetails();
-        setUpDefaultFragment();
-        navigationClickListeners();
+//        initViews();
+//        fetchUserDetails();
+//        setUpDefaultFragment();
+//        navigationClickListeners();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         String name = getIntent().getStringExtra("name");
-        if(name!=null){
-            Fragment frag = new MyVehicleFragment();
-            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-            ft.replace(R.id.home_frame, frag).commit();
-            enableBackViews(true);
-            getSupportActionBar().setTitle("My Vehicle");
+        if (name != null) {
+//            Fragment frag = new MyVehicleFragment();
+//            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+//            ft.replace(R.id.home_frame, frag).commit();
+//            enableBackViews(true);
+//            getSupportActionBar().setTitle("My Vehicle");
         }
     }
 
@@ -82,8 +79,8 @@ public class HomeActivity extends BaseActivity {
         String token = getSharePref().getAccessToken();
         getParkingApi().getProfileDetails(token).enqueue(new Callback<BaseDataResponse<User>>() {
             @Override
-            public void onResponse(Call<BaseDataResponse<User>> call, Response<BaseDataResponse<User>>response) {
-                if(response.isSuccessful()){
+            public void onResponse(Call<BaseDataResponse<User>> call, Response<BaseDataResponse<User>> response) {
+                if (response.isSuccessful()) {
                     setUser(response.body().getData());
                     String name = getUser().getFirstName() + " " + getUser().getLastName();
                 }
@@ -134,7 +131,6 @@ public class HomeActivity extends BaseActivity {
         });
 
 
-
     }
 
 
@@ -145,11 +141,6 @@ public class HomeActivity extends BaseActivity {
     }
 
 
-
-
-
-
-    
     private void navigationClickListeners() {
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
 
@@ -165,19 +156,16 @@ public class HomeActivity extends BaseActivity {
                         break;
 
 
-
                     case R.id.nav_pay:
                         title = "Payment Methods";
                         fragment = new PaymentMethodsFragment();
                         break;
 
 
-
                     case R.id.nav_car:
                         title = "My Vehicle";
                         fragment = new MyVehicleFragment();
                         break;
-
 
 
                     case R.id.nav_sign_out:
@@ -208,10 +196,9 @@ public class HomeActivity extends BaseActivity {
     @Override
     public void onBackPressed() {
         Fragment f = getSupportFragmentManager().findFragmentById(R.id.home_frame);
-        if(f instanceof DefaultFragment ){
+        if (f instanceof DefaultFragment) {
             finish();
-        }
-        else {
+        } else {
             setUpDefaultFragment();
             enableBackViews(false);
         }
@@ -222,7 +209,7 @@ public class HomeActivity extends BaseActivity {
         super.onActivityResult(requestCode, resultCode, data);
         Fragment frag = new MyVehicleFragment();
         Fragment frag2 = new DefaultFragment();
-        if((requestCode == 10001) && (resultCode == Activity.RESULT_OK)) {
+        if ((requestCode == 10001) && (resultCode == Activity.RESULT_OK)) {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.detach(frag2).attach(frag).commit();
         }
@@ -230,9 +217,9 @@ public class HomeActivity extends BaseActivity {
 
     private void signout() {
         // Facebook logout
-        if (LoginManager.getInstance() != null) {
-            LoginManager.getInstance().logOut();
-        }
+//        if (LoginManager.getInstance() != null) {
+//            LoginManager.getInstance().logOut();
+//        }
 
         SharePreference.getINSTANCE(getApplicationContext()).setIsUserLoggedIn(false);
         SharePreference.getINSTANCE(getApplicationContext()).setAccesstoken("null");
@@ -275,7 +262,8 @@ public class HomeActivity extends BaseActivity {
             toggle.setToolbarNavigationClickListener(null);
             mToolBarNavigationListenerIsRegistered = false;
 
-            toolbar.setBackgroundColor(getResources().getColor(R.color.color_white));        }
+            toolbar.setBackgroundColor(getResources().getColor(R.color.color_white));
+        }
     }
 
 }
