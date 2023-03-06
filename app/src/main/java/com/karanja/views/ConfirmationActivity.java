@@ -241,8 +241,8 @@ public class ConfirmationActivity extends BaseActivity {
                 PARTYB,
                 sanitizePhoneNumber(phone_number),
                 CALLBACKURL,
-                "Karanja Ltd", //Account reference
-                "Car Parking Lot STK PUSH by Karanja"  //Transaction description
+                "Car Parking", //Account reference
+                "Car Parking Lot STK PUSH by Patrice"  //Transaction description
         );
 
 

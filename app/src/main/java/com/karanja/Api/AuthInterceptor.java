@@ -24,7 +24,7 @@ public class AuthInterceptor implements Interceptor {
                 .addHeader("Authorization", "Bearer " + mAuthToken)
                 .addHeader("Content-Type", "application/json")
                 .build();
-//        Log.d("TAG-AUTH", "Bearer " + mAuthToken);
+        Log.d("TAG-AUTH", "Bearer " + mAuthToken);
         return chain.proceed(request);
     }
 }

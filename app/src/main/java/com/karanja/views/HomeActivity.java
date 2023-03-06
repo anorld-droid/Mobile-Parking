@@ -56,10 +56,10 @@ public class HomeActivity extends BaseActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
-//        initViews();
-//        fetchUserDetails();
-//        setUpDefaultFragment();
-//        navigationClickListeners();
+        initViews();
+        fetchUserDetails();
+        setUpDefaultFragment();
+        navigationClickListeners();
     }
 
     @Override
@@ -67,11 +67,11 @@ public class HomeActivity extends BaseActivity {
         super.onStart();
         String name = getIntent().getStringExtra("name");
         if (name != null) {
-//            Fragment frag = new MyVehicleFragment();
-//            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
-//            ft.replace(R.id.home_frame, frag).commit();
-//            enableBackViews(true);
-//            getSupportActionBar().setTitle("My Vehicle");
+            Fragment frag = new MyVehicleFragment();
+            FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
+            ft.replace(R.id.home_frame, frag).commit();
+            enableBackViews(true);
+            getSupportActionBar().setTitle("My Vehicle");
         }
     }
 
@@ -216,11 +216,6 @@ public class HomeActivity extends BaseActivity {
     }
 
     private void signout() {
-        // Facebook logout
-//        if (LoginManager.getInstance() != null) {
-//            LoginManager.getInstance().logOut();
-//        }
-
         SharePreference.getINSTANCE(getApplicationContext()).setIsUserLoggedIn(false);
         SharePreference.getINSTANCE(getApplicationContext()).setAccesstoken("null");
         Intent logout = new Intent(getApplicationContext(), LoginActivity.class);
@@ -230,7 +225,6 @@ public class HomeActivity extends BaseActivity {
     }
 
     private void enableBackViews(boolean enable) {
-
         if (enable) {
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             toggle.setDrawerIndicatorEnabled(false);
@@ -245,12 +239,7 @@ public class HomeActivity extends BaseActivity {
             toolbar.setBackgroundColor(getResources().getColor(R.color.colorPrimary));
 
             if (!mToolBarNavigationListenerIsRegistered) {
-                toggle.setToolbarNavigationClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                        onBackPressed();
-                    }
-                });
+                toggle.setToolbarNavigationClickListener(v -> onBackPressed());
 
                 mToolBarNavigationListenerIsRegistered = true;
             }

@@ -1,24 +1,10 @@
 package com.karanja.views.homefragments;
 
-import android.content.Context;
 import android.os.Bundle;
-
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
-import com.google.firebase.firestore.DocumentReference;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.FirebaseFirestore;
-import com.google.firebase.firestore.QueryDocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
-import com.karanja.Api.ParkingApi;
-import com.karanja.Api.Responses.Park.ParkingSpaceAllResponse;
-import com.karanja.Api.RetrofitClient;
-import com.karanja.Model.Park.ParkingSpace;
-import com.karanja.Model.Vehicle;
-import com.karanja.utils.SharePreference;
-import com.karanja.R;
-import com.karanja.adapter.AddressAdapter;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -26,19 +12,14 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ProgressBar;
-import android.widget.Toast;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.karanja.Model.Park.ParkingSpace;
+import com.karanja.R;
+import com.karanja.adapter.AddressAdapter;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class ListFragment extends Fragment {
     private RecyclerView recyclerView;
@@ -61,17 +42,14 @@ public class ListFragment extends Fragment {
         recyclerView.setLayoutManager(layoutManager);
         recyclerView.setAdapter(addressAdapter);
 
-        DocumentReference docRef = db.collection("parkingspaces").document("Naivas");
+        DocumentReference docRef = db.collection("parkingspaces").document("Maseno");
         progressBar.setVisibility(View.VISIBLE);
-        docRef.get().addOnSuccessListener(new OnSuccessListener<DocumentSnapshot>() {
-            @Override
-            public void onSuccess(DocumentSnapshot documentSnapshot) {
-                ParkingSpace parkingSpace = documentSnapshot.toObject(ParkingSpace.class);
-                ParkingSpace.add(parkingSpace);
-                addressAdapter.notifyDataSetChanged();
-                progressBar.setVisibility(View.GONE);
+        docRef.get().addOnSuccessListener(documentSnapshot -> {
+            ParkingSpace parkingSpace = documentSnapshot.toObject(ParkingSpace.class);
+            ParkingSpace.add(parkingSpace);
+            addressAdapter.notifyDataSetChanged();
+            progressBar.setVisibility(View.GONE);
 
-            }
         });
 
         return root;
