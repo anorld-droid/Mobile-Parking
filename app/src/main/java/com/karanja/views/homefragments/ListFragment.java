@@ -49,7 +49,6 @@ public class ListFragment extends Fragment {
             ParkingSpace.add(parkingSpace);
             addressAdapter.notifyDataSetChanged();
             progressBar.setVisibility(View.GONE);
-
         });
 
         return root;

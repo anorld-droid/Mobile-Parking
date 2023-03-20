@@ -1,19 +1,15 @@
 package com.karanja.views;
 
-import static com.karanja.utils.Commons.getUser;
-import static com.karanja.utils.Commons.setUser;
-
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.widget.Toolbar;
@@ -23,13 +19,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.google.android.material.navigation.NavigationView;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
-import com.karanja.Api.Responses.BaseDataResponse;
-import com.karanja.Model.User;
 import com.karanja.R;
 import com.karanja.Register.LoginActivity;
 import com.karanja.utils.SharePreference;
@@ -37,9 +26,7 @@ import com.karanja.views.homefragments.DefaultFragment;
 import com.karanja.views.homefragments.MyVehicleFragment;
 import com.karanja.views.homefragments.PaymentMethodsFragment;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
+import java.util.Objects;
 
 public class HomeActivity extends BaseActivity {
 
@@ -49,15 +36,14 @@ public class HomeActivity extends BaseActivity {
     private NavigationView navigationView;
     private ActionBarDrawerToggle toggle;
     private boolean mToolBarNavigationListenerIsRegistered = false;
-    private TextView nav_fullnames, nav_phonenumber;
-    private View headerView;
+    private TextView nav_fullnames, nav_phonenumber, nav_user;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_home);
+        loadViews();
         initViews();
-        fetchUserDetails();
         setUpDefaultFragment();
         navigationClickListeners();
     }
@@ -71,31 +57,12 @@ public class HomeActivity extends BaseActivity {
             FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
             ft.replace(R.id.home_frame, frag).commit();
             enableBackViews(true);
-            getSupportActionBar().setTitle("My Vehicle");
+            Objects.requireNonNull(getSupportActionBar()).setTitle("My Vehicle");
         }
     }
 
-    private void fetchUserDetails() {
-        String token = getSharePref().getAccessToken();
-        getParkingApi().getProfileDetails(token).enqueue(new Callback<BaseDataResponse<User>>() {
-            @Override
-            public void onResponse(Call<BaseDataResponse<User>> call, Response<BaseDataResponse<User>> response) {
-                if (response.isSuccessful()) {
-                    setUser(response.body().getData());
-                    String name = getUser().getFirstName() + " " + getUser().getLastName();
-                }
 
-
-            }
-
-            @Override
-            public void onFailure(Call<BaseDataResponse<User>> call, Throwable t) {
-
-            }
-        });
-    }
-
-    private void initViews() {
+    private void loadViews() {
         toolbar = findViewById(R.id.home_toolbar);
         setSupportActionBar(toolbar);
         navigationView = findViewById(R.id.navigation_view);
@@ -104,35 +71,17 @@ public class HomeActivity extends BaseActivity {
         toggle = new ActionBarDrawerToggle(this, mDrawerLayout, toolbar, R.string.open_drawer, R.string.close_drawer);
         mDrawerLayout.addDrawerListener(toggle);
         toggle.syncState();
-        headerView = navigationView.getHeaderView(0);
+        View headerView = navigationView.getHeaderView(0);
         nav_fullnames = headerView.findViewById(R.id.nav_user_fullnames);
         nav_phonenumber = headerView.findViewById(R.id.nav_user_phone_number);
-
-        DatabaseReference userRef = FirebaseDatabase.getInstance().getReference().child("user").child(
-                SharePreference.getINSTANCE(HomeActivity.this).getUser()
-        );
-
-        userRef.addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    String name = snapshot.child("fullname").getValue().toString();
-                    nav_fullnames.setText(name);
-                    String number = snapshot.child("phoneNumber").getValue().toString();
-                    nav_phonenumber.setText(number);
-
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-
-
+        nav_user = headerView.findViewById(R.id.user);
     }
 
+    private void initViews() {
+        nav_fullnames.setText(SharePreference.getINSTANCE(getApplicationContext()).getUser());
+        nav_phonenumber.setText(SharePreference.getINSTANCE(getApplicationContext()).getPhoneNumber());
+        nav_user.setText(SharePreference.getINSTANCE(getApplicationContext()).getUserType());
+    }
 
     private void setUpDefaultFragment() {
         DefaultFragment defaultFragment = new DefaultFragment();
@@ -141,48 +90,45 @@ public class HomeActivity extends BaseActivity {
     }
 
 
+    @SuppressLint("NonConstantResourceId")
     private void navigationClickListeners() {
-        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+        navigationView.setNavigationItemSelectedListener(item -> {
+            Fragment fragment = null;
+            String title = "";
+            switch (item.getItemId()) {
 
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                Fragment fragment = null;
-                String title = "";
-                switch (item.getItemId()) {
-
-                    case R.id.nav_notification:
-                        title = "Notificatins";
-                        fragment = new NotificationFragment();
-                        break;
+                case R.id.nav_notification:
+                    title = "Notificatins";
+                    fragment = new NotificationFragment();
+                    break;
 
 
-                    case R.id.nav_pay:
-                        title = "Payment Methods";
-                        fragment = new PaymentMethodsFragment();
-                        break;
+                case R.id.nav_pay:
+                    title = "Payment Methods";
+                    fragment = new PaymentMethodsFragment();
+                    break;
 
 
-                    case R.id.nav_car:
-                        title = "My Vehicle";
-                        fragment = new MyVehicleFragment();
-                        break;
+                case R.id.nav_car:
+                    title = "My Vehicle";
+                    fragment = new MyVehicleFragment();
+                    break;
 
 
-                    case R.id.nav_sign_out:
-                        title = "Logout";
-                        signout();
-                        break;
-                }
-                mDrawerLayout.closeDrawer(GravityCompat.START);
-                navigationView.setCheckedItem(item);
-                if (fragment != null) {
-                    setUpFragment(fragment);
-                    enableBackViews(true);
-                    toolbar.setTitle(title);
-
-                }
-                return true;
+                case R.id.nav_sign_out:
+                    title = "Logout";
+                    signout();
+                    break;
             }
+            mDrawerLayout.closeDrawer(GravityCompat.START);
+            navigationView.setCheckedItem(item);
+            if (fragment != null) {
+                setUpFragment(fragment);
+                enableBackViews(true);
+                toolbar.setTitle(title);
+
+            }
+            return true;
         });
 
     }
@@ -229,9 +175,9 @@ public class HomeActivity extends BaseActivity {
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
             toggle.setDrawerIndicatorEnabled(false);
 
-            final Drawable upArrow = getResources().getDrawable(R.drawable.ic_action_back);
+            @SuppressLint("UseCompatLoadingForDrawables") final Drawable upArrow = getResources().getDrawable(R.drawable.ic_action_back);
             upArrow.setColorFilter(Color.parseColor("#FFFFFF"), PorterDuff.Mode.SRC_ATOP);
-            getSupportActionBar().setHomeAsUpIndicator(upArrow);
+            Objects.requireNonNull(getSupportActionBar()).setHomeAsUpIndicator(upArrow);
 
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
@@ -246,7 +192,7 @@ public class HomeActivity extends BaseActivity {
 
         } else {
             mDrawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
-            getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+            Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(false);
             toggle.setDrawerIndicatorEnabled(true);
             toggle.setToolbarNavigationClickListener(null);
             mToolBarNavigationListenerIsRegistered = false;

@@ -242,7 +242,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:fontFamily="@font/nunito"
-                    android:text="Payable Amount" />
+                    android:text="Phone number" />
 
                 <EditText
                     android:id="@+id/phone_number"

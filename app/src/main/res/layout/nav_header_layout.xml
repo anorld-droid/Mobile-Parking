@@ -1,42 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:background="@android:color/white"
-    android:layout_marginTop="50dp"
-    android:layout_gravity="center"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="10dp"
-    android:orientation="vertical">
+    android:layout_gravity="center"
+    android:background="@drawable/header_background"
+    android:orientation="vertical"
+    android:padding="10dp">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:layout_width="61dp"
         android:layout_height="61dp"
         android:layout_gravity="center"
-        android:src="@drawable/person_icon"/>
+        android:layout_marginTop="30dp"
+        android:src="@drawable/person_icon" />
 
     <TextView
         android:id="@+id/nav_user_fullnames"
-        android:text="Full Names"
-        android:textStyle="bold"
-        android:textSize="18sp"
-        android:textColor="@color/black"
+
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:textColor="@color/black"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        tools:text="Full Names" />
+
     <TextView
         android:id="@+id/nav_user_phone_number"
-        android:text="example@gmai.com"
-
-        android:textSize="16sp"
-        android:textColor="@color/black"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        tools:text="example@gmai.com" />
+
     <TextView
         android:id="@+id/user"
-        android:text="CarPark User"
-        android:textSize="16sp"
-        android:textColor="@color/black"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"/>
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:textSize="16sp"
+        tools:text="CarPark User" />
 
 </LinearLayout>

@@ -69,7 +69,6 @@ public class DarajaApiClient {
         }
 
         if (mAuthToken != null && !mAuthToken.isEmpty()) {
-            Log.d("TAG-----", mAuthToken);
             okhttpBuilder.addInterceptor(new AuthInterceptor(mAuthToken));
         }
 

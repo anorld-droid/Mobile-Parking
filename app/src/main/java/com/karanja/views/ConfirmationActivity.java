@@ -244,8 +244,6 @@ public class ConfirmationActivity extends BaseActivity {
                 "Car Parking", //Account reference
                 "Car Parking Lot STK PUSH by Patrice"  //Transaction description
         );
-
-
         mApiClient.setGetAccessToken(false);
         //Sending the data to the Mpesa API, remember to remove the logging when in production.
 
