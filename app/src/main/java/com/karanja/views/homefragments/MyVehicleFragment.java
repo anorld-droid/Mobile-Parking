@@ -59,12 +59,9 @@ public class MyVehicleFragment extends Fragment {
         progressBar = root.findViewById(R.id.progressBar);
         new_text.setVisibility(View.INVISIBLE);
         db = FirebaseFirestore.getInstance();
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent transactionIntent = new Intent(getContext(), CarDetailsActiviy.class);
-                startActivity(transactionIntent);
-            }
+        fab.setOnClickListener(view -> {
+            Intent transactionIntent = new Intent(getContext(), CarDetailsActiviy.class);
+            startActivity(transactionIntent);
         });
         recyclerView = root.findViewById(R.id.mv_recyclerView);
         myVehicleAdapter = new MyVehicleAdapter(this.getContext(), vehicleList);

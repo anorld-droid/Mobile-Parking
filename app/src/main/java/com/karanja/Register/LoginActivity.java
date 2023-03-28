@@ -83,7 +83,7 @@ public class LoginActivity extends AppCompatActivity {
                         Intent intent;
                         if (isAdminSwitch.isChecked()) {
                             intent = new Intent(LoginActivity.this, AdminHomeActivity.class);
-                            getUserCredentials("Admin", Objects.requireNonNull(task.getResult().getUser()).getUid());
+                            getUserCredentials("User", Objects.requireNonNull(task.getResult().getUser()).getUid());
                         } else {
                             intent = new Intent(LoginActivity.this, HomeActivity.class);
                             getUserCredentials("User", Objects.requireNonNull(task.getResult().getUser()).getUid());

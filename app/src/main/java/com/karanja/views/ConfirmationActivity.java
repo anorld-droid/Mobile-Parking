@@ -241,7 +241,7 @@ public class ConfirmationActivity extends BaseActivity {
                 PARTYB,
                 sanitizePhoneNumber(phone_number),
                 CALLBACKURL,
-                "Car Parking", //Account reference
+                " 8328138 Car Parking by Patrice", //Account reference
                 "Car Parking Lot STK PUSH by Patrice"  //Transaction description
         );
         mApiClient.setGetAccessToken(false);
