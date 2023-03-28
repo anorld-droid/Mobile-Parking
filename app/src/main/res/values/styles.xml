@@ -4,7 +4,7 @@
     <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <!-- Customize your theme here. -->
         <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorPrimaryDark">@color/colorPrimary</item>
         <item name="colorAccent">@color/colorAccent</item>
     </style>
 
@@ -51,6 +51,10 @@
         <item name="SavedCardButtonStyle">@style/svdCardsBtnStyle</item>
     </style>
 
-
+    <style name="SplashScreenTheme" parent="AppTheme">
+        <item name="android:windowBackground">
+            @drawable/splash_screen_bg
+        </item>
+    </style>
 
 </resources>
