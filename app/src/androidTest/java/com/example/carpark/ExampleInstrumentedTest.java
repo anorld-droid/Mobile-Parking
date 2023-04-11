@@ -1,4 +1,4 @@
-package com.karanja;
+package com.example.carpark;
 
 import android.content.Context;
 
