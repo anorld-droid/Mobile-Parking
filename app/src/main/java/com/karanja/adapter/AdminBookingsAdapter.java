@@ -1,6 +1,7 @@
 package com.karanja.adapter;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -23,6 +24,8 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.karanja.Model.Park.SlotDetails;
 import com.karanja.Model.review.NotificationModel;
 import com.karanja.R;
+import com.karanja.views.HomeActivity;
+import com.karanja.views.admin.AdminHomeActivity;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -90,6 +93,8 @@ public class AdminBookingsAdapter extends RecyclerView.Adapter<AdminBookingsAdap
             setNotification(uid);
             revokeBooking(uid, slotDetails.get(holder.getLayoutPosition()).getId());
             slotDetails.remove(holder.getLayoutPosition());
+            context.startActivity(new Intent(context, AdminHomeActivity.class));
+
         });
 
     }

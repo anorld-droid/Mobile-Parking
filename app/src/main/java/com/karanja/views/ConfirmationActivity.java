@@ -226,6 +226,7 @@ public class ConfirmationActivity extends BaseActivity {
     }
 
     public void performSTKPush(String phone_number, int amount) {
+        Log.d("Number", phone_number);
         mProgressDialog.setMessage("Processing your request");
         mProgressDialog.setTitle("Please Wait...");
         mProgressDialog.setIndeterminate(true);
@@ -253,8 +254,8 @@ public class ConfirmationActivity extends BaseActivity {
                 mProgressDialog.dismiss();
                 try {
                     if (response.isSuccessful()) {
-                        showAlert();
                         SharePreference.getINSTANCE(getApplicationContext()).setPhoneNumber(phone_number);
+                        showAlert();
                     } else {
                         Toast.makeText(getApplicationContext(), response.message(), Toast.LENGTH_SHORT).show();
                         Log.d("TAGElse", response.toString());

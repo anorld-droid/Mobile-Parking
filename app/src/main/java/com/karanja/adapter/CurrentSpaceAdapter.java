@@ -3,6 +3,7 @@ package com.karanja.adapter;
 import static com.facebook.FacebookSdk.getApplicationContext;
 
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +28,9 @@ import com.karanja.Model.review.NotificationModel;
 import com.karanja.Model.review.ParkingHistoryModel;
 import com.karanja.R;
 import com.karanja.utils.SharePreference;
+import com.karanja.views.HomeActivity;
+import com.karanja.views.admin.AdminHomeActivity;
+import com.karanja.views.admin.ReportsActivity;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -98,7 +102,7 @@ public class CurrentSpaceAdapter extends RecyclerView.Adapter<CurrentSpaceAdapte
                 setNotification("You have checkout out of your parking session.");
                 convert_to_history(holder.getLayoutPosition());
                 Toast.makeText(context, "Checked Out", Toast.LENGTH_SHORT).show();
-
+               context.startActivity(new Intent(context, HomeActivity.class));
             }
         });
     }

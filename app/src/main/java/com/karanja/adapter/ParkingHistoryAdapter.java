@@ -45,6 +45,7 @@ import com.karanja.R;
 import com.karanja.utils.DarajaApiClient;
 import com.karanja.utils.SharePreference;
 import com.karanja.views.ConfirmationActivity;
+import com.karanja.views.HomeActivity;
 import com.karanja.views.ScheduleActivity;
 
 import java.text.ParseException;
@@ -126,7 +127,9 @@ public class ParkingHistoryAdapter extends RecyclerView.Adapter<ParkingHistoryAd
         holder.location.setText(parkingHistory.get(position).getLocation());
         holder.qr_code.setText(parkingHistory.get(position).getQrCode());
         holder.amount.setText(String.valueOf("Ksh." + parkingHistory.get(position).getAmount()));
-        holder.re_book.setOnClickListener(v -> changeDate(parkingHistory.get(holder.getLayoutPosition())));
+        holder.re_book.setOnClickListener(v -> {
+            changeDate(parkingHistory.get(holder.getLayoutPosition()));
+        });
 
     }
 
@@ -373,6 +376,7 @@ public class ParkingHistoryAdapter extends RecyclerView.Adapter<ParkingHistoryAd
                 .addOnFailureListener(e -> Log.w("CURRENT", "Error deleting document", e));
         addBooking(parkingHistoryModel.getUserId(), bookingId);
         Toast.makeText(context, "Re-book Successful", Toast.LENGTH_LONG).show();
+        context.startActivity(new Intent(context, HomeActivity.class));
     }
 
 
